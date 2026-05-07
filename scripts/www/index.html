@@ -1,1492 +1,1078 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="format-detection" content="telephone=no">
-<title>手書きToDoノート</title>
-<link href="https://fonts.googleapis.com/css2?family=Kaisei+Decol:wght@400;700&family=Yomogi&family=Zen+Kurenaido&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+<!-- saved from url=(0062)https://5060-i8qtx185undi4teairrxn-ad490db5.sandbox.novita.ai/ -->
+<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>無音カメラ</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
-  body {
-    min-height: 100vh;
-    background:
-      radial-gradient(circle at 20% 10%, #ffe6d5 0%, transparent 40%),
-      radial-gradient(circle at 80% 90%, #d5e8ff 0%, transparent 40%),
-      linear-gradient(135deg, #fdf6e3 0%, #f4ead5 100%);
-    font-family: 'Yomogi', 'Zen Kurenaido', cursive;
-    padding: 30px 15px;
-    color: #3a3a3a;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .page-header { text-align: center; margin-bottom: 20px; }
-  .page-header h1 {
-    font-family: 'Kaisei Decol', serif;
-    font-size: 1.8rem;
-    color: #5a4a3a;
-    letter-spacing: 2px;
-  }
-  .page-header p {
-    color: #8a7a6a;
-    margin-top: 6px;
-    font-size: 0.95rem;
-  }
+:root {
+  --black:     #080c10;
+  --navy:      #0b1120;
+  --panel:     #0d1829;
+  --border:    #1a2d4a;
+  --blue:      #1d6dff;
+  --blue-lo:   rgba(29,109,255,0.12);
+  --blue-glow: rgba(29,109,255,0.35);
+  --cyan:      #38c8ff;
+  --white:     #f0f4ff;
+  --muted:     #3d5a80;
+  --rec:       #ff3c5a;
+  --torch-on:  #ffe566;
+  --flash-on:  #38c8ff;
+}
 
-  /* 曜日タブ */
-  .day-tabs {
-    max-width: 600px;
-    margin: 0 auto 20px;
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  .day-tab {
-    background: #fffdf5;
-    border: 2px dashed #b8956a;
-    color: #5a4a3a;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-family: 'Yomogi', cursive;
-    font-size: 1.05rem;
-    transition: all 0.2s;
-    box-shadow: 2px 2px 0 rgba(0,0,0,0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .day-tab:hover {
-    transform: translateY(-2px);
-    background: #fffaf0;
-  }
-  .day-tab.active {
-    background: #f6c177;
-    border-color: #c89456;
-    color: #fff;
-    transform: scale(1.1);
-    box-shadow: 3px 4px 0 rgba(0,0,0,0.15);
-  }
-  .day-tab[data-day="0"] { color: #d96c5e; }
-  .day-tab[data-day="6"] { color: #5e8ed9; }
-  .day-tab[data-day="0"].active,
-  .day-tab[data-day="6"].active { color: #fff; }
+html, body {
+  width: 100%; height: 100%;
+  background: var(--black);
+  color: var(--white);
+  font-family: 'Space Mono', monospace;
+  overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
 
-  .toolbar {
-    max-width: 600px;
-    margin: 0 auto 20px;
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  .btn {
-    background: #fff;
-    border: 2px dashed #b8956a;
-    color: #5a4a3a;
-    padding: 10px 18px;
-    border-radius: 30px;
-    cursor: pointer;
-    font-family: 'Yomogi', cursive;
-    font-size: 0.95rem;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 2px 2px 0 rgba(0,0,0,0.08);
-  }
-  .btn:hover {
-    background: #fffaf0;
-    transform: translateY(-2px);
-    box-shadow: 3px 4px 0 rgba(0,0,0,0.12);
-  }
-  .btn.primary { background: #f6c177; border-color: #c89456; }
-  .btn.primary:hover { background: #f0b15f; }
-  .btn.danger { border-color: #d96c5e; color: #d96c5e; }
+#app { display: flex; flex-direction: column; height: 100dvh; position: relative; }
 
-  /* ノート本体 */
-  .note {
-    max-width: 600px;
-    margin: 0 auto;
-    background: #fffdf5;
-    background-image:
-      linear-gradient(transparent 0, transparent 39px, #d4c5a9 39px, #d4c5a9 40px, transparent 40px),
-      linear-gradient(90deg, transparent 0, transparent 59px, #f4a5a5 59px, #f4a5a5 60px, transparent 60px);
-    background-size: 100% 40px, 100% 100%;
-    border-radius: 6px;
-    box-shadow:
-      0 2px 4px rgba(0,0,0,0.08),
-      0 10px 30px rgba(0,0,0,0.12),
-      inset 0 0 60px rgba(180, 150, 100, 0.05);
-    padding: 30px 30px 40px 75px;
-    position: relative;
-    overflow: hidden;
-  }
+/* ── TOPBAR ── */
+#topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--navy);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0; position: relative; z-index: 10;
+}
+#topbar::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue), transparent);
+  opacity: 0.6;
+}
+.brand {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700;
+  font-size: 20px; letter-spacing: 3px; color: var(--white); text-transform: uppercase;
+}
+.brand span { color: var(--blue); }
 
-  .note::before {
-    content: '';
-    position: absolute;
-    top: -8px;
-    left: 50%;
-    transform: translateX(-50%) rotate(-2deg);
-    width: 100px;
-    height: 24px;
-    background: rgba(255, 220, 130, 0.7);
-    border-left: 1px dashed rgba(0,0,0,0.1);
-    border-right: 1px dashed rgba(0,0,0,0.1);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
+.silent-badge {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 9px; letter-spacing: 2px; color: var(--cyan);
+  border: 1px solid rgba(56,200,255,0.3); padding: 3px 9px; border-radius: 2px;
+}
+.silent-badge::before {
+  content: ''; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--cyan); box-shadow: 0 0 6px var(--cyan);
+}
+#mode-info { font-size: 10px; letter-spacing: 2px; color: var(--muted); }
 
-  .note-title {
-    font-family: 'Kaisei Decol', serif;
-    font-size: 1.6rem;
-    color: #d96c5e;
-    text-align: center;
-    margin-bottom: 20px;
-    padding-bottom: 8px;
-    text-decoration: underline wavy #f4a5a5;
-    text-underline-offset: 6px;
-  }
+/* ── VIEWFINDER ── */
+#viewfinder-wrap { flex: 1; position: relative; overflow: hidden; background: #000; }
 
-  .date-line {
-    text-align: right;
-    color: #8a7a6a;
-    font-size: 0.9rem;
-    margin-bottom: 15px;
-    height: 40px;
-    line-height: 40px;
-  }
+#video {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  /* 再生マークを完全に非表示 */
+  pointer-events: none;
+}
+/* ブラウザのデフォルト動画コントロールを全て消す（再生マーク含む） */
+#video::-webkit-media-controls { display: none !important; -webkit-appearance: none !important; }
+#video::-webkit-media-controls-enclosure { display: none !important; }
+#video::-webkit-media-controls-panel { display: none !important; }
+#video::-webkit-media-controls-play-button { display: none !important; -webkit-appearance: none !important; }
+#video::-webkit-media-controls-overlay-play-button { display: none !important; -webkit-appearance: none !important; opacity: 0 !important; }
+#video::-webkit-media-controls-start-playback-button { display: none !important; -webkit-appearance: none !important; opacity: 0 !important; }
+#video::-internal-media-controls-overlay-cast-button { display: none !important; }
+video::-webkit-media-controls-start-playback-button { display: none !important; -webkit-appearance: none !important; }
+video::-webkit-media-controls { display: none !important; }
+video::-webkit-media-controls-overlay-play-button { display: none !important; opacity: 0 !important; }
+/* iOS用の追加対策 */
+video {
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+}
 
-  /* ToDoリスト */
-  .todo-list { list-style: none; min-height: 80px; }
-  .todo-item {
-    display: flex;
-    align-items: center;
-    height: 40px;
-    line-height: 40px;
-    font-family: 'Yomogi', cursive;
-    font-size: 1.1rem;
-    color: #4a3a2a;
-    position: relative;
-    padding-left: 5px;
-    gap: 6px;
-  }
-  .todo-item .checkbox {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #5a4a3a;
-    border-radius: 4px;
-    margin-right: 8px;
-    flex-shrink: 0;
-    position: relative;
-    cursor: pointer;
-    transform: rotate(-2deg);
-    background: #fff;
-  }
-  .todo-item.done .checkbox::after {
-    content: '✓';
-    position: absolute;
-    top: -6px;
-    left: 1px;
-    font-size: 22px;
-    color: #d96c5e;
-    font-weight: bold;
-    transform: rotate(8deg);
-  }
-  .todo-item.done .text {
-    text-decoration: line-through;
-    text-decoration-color: #d96c5e;
-    text-decoration-thickness: 2px;
-    color: #a89888;
-  }
+#viewfinder-wrap::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(8,12,16,0.55) 100%);
+  pointer-events: none; z-index: 1;
+}
 
-  .todo-item .text {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    font: inherit;
-    color: inherit;
-    padding: 0;
-    min-width: 50px;
-  }
-  .todo-item .text:focus {
-    background: rgba(255, 240, 200, 0.4);
-    border-radius: 4px;
-    padding: 0 4px;
-  }
+/* Grid */
+#grid-overlay {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0.15; z-index: 2;
+}
+#grid-overlay::before, #grid-overlay::after {
+  content: ''; position: absolute; background: var(--cyan);
+}
+#grid-overlay::before { width:1px; height:100%; left:33.33%; top:0; box-shadow: calc(33.33vw) 0 0 var(--cyan); }
+#grid-overlay::after  { height:1px; width:100%; top:33.33%; left:0; box-shadow: 0 calc(33.33%) 0 var(--cyan); }
 
-  /* 繰り返しバッジ */
-  .repeat-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    font-size: 0.7rem;
-    color: #7a9a5a;
-    background: rgba(180, 220, 150, 0.3);
-    border: 1px dashed #9aba7a;
-    border-radius: 10px;
-    padding: 1px 6px;
-    cursor: pointer;
-    flex-shrink: 0;
-    line-height: 1.2;
-    height: 22px;
-    transition: all 0.2s;
-  }
-  .repeat-badge:hover {
-    background: rgba(180, 220, 150, 0.5);
-    transform: scale(1.05);
-  }
-  .repeat-badge.none {
-    color: #b8a890;
-    background: transparent;
-    border-color: transparent;
-    opacity: 0;
-  }
-  .todo-item:hover .repeat-badge.none { opacity: 0.6; }
+/* Brackets */
+.bracket {
+  position: absolute; width:22px; height:22px;
+  border-color: var(--blue); border-style: solid;
+  pointer-events: none; z-index: 3;
+}
+.bracket.tl { top:18px; left:18px; border-width:1.5px 0 0 1.5px; }
+.bracket.tr { top:18px; right:18px; border-width:1.5px 1.5px 0 0; }
+.bracket.bl { bottom:18px; left:18px; border-width:0 0 1.5px 1.5px; }
+.bracket.br { bottom:18px; right:18px; border-width:0 1.5px 1.5px 0; }
 
-  .star-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #d8d0c0;
-    font-size: 1.1rem;
-    transition: all 0.2s;
-    padding: 0 4px;
-    position: relative;
-  }
-  .star-btn.active {
-    transform: scale(1.2);
-  }
-  .star-btn.mark-star.active { color: #f6a623; }
-  .star-btn.mark-fire.active { color: #e8552a; }
-  .star-btn.mark-heart.active { color: #e879b3; }
-  .star-btn.mark-flag.active { color: #d96c5e; }
-  .star-btn.mark-bolt.active { color: #c89456; }
-  .star-btn.mark-exclaim.active { color: #d96c5e; font-weight: bold; }
+.center-dot {
+  position: absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:6px; height:6px; border:1px solid rgba(56,200,255,0.5); border-radius:50%;
+  pointer-events:none; z-index:3;
+}
 
-  /* 重要マーク選択ポップオーバー */
-  .mark-popover {
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%) translateY(8px);
-    background: #fffdf5;
-    border: 2px dashed #b8956a;
-    border-radius: 14px;
-    padding: 8px 10px;
-    display: none;
-    gap: 4px;
-    z-index: 100;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-    white-space: nowrap;
-  }
-  .mark-popover.show {
-    display: flex;
-    animation: popIn 0.15s ease-out forwards;
-  }
-  /* 下方向に出る場合 */
-  .mark-popover.below {
-    bottom: auto;
-    top: calc(100% + 8px);
-  }
-  @keyframes popIn {
-    from { opacity: 0; transform: translateX(-50%) translateY(4px); }
-    to { opacity: 1; transform: translateX(-50%) translateY(0); }
-  }
-  .mark-popover::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 6px solid transparent;
-    border-top-color: #b8956a;
-  }
-  .mark-popover.below::after {
-    top: auto;
-    bottom: 100%;
-    border-top-color: transparent;
-    border-bottom-color: #b8956a;
-  }
-  .mark-option {
-    background: none;
-    border: 1.5px dashed transparent;
-    border-radius: 8px;
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-    padding: 0;
-  }
-  .mark-option:hover {
-    background: rgba(255, 240, 200, 0.6);
-    border-color: #c89456;
-    transform: scale(1.15);
-  }
-  .mark-option.current {
-    background: rgba(246, 193, 119, 0.3);
-    border-color: #c89456;
-  }
-  .mark-option.opt-star { color: #f6a623; }
-  .mark-option.opt-fire { color: #e8552a; }
-  .mark-option.opt-heart { color: #e879b3; }
-  .mark-option.opt-flag { color: #d96c5e; }
-  .mark-option.opt-bolt { color: #c89456; }
-  .mark-option.opt-exclaim { color: #d96c5e; font-weight: bold; }
-  .mark-option.opt-none { color: #b8a890; font-size: 0.85rem; }
-  .delete-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #d8c0c0;
-    font-size: 0.95rem;
-    transition: all 0.2s;
-    opacity: 0;
-    padding: 0 6px;
-  }
-  .todo-item:hover .delete-btn { opacity: 1; }
-  .delete-btn:hover {
-    color: #d96c5e;
-    transform: scale(1.2);
-  }
+/* Flash overlay */
+#flash {
+  position: absolute; inset:0; background:white; opacity:0;
+  pointer-events:none; z-index:20; transition:opacity 0.05s;
+}
+#flash.active { opacity:1; }
 
-  /* 追加フォーム */
-  .add-form {
-    margin-top: 10px;
-    display: flex;
-    align-items: center;
-    height: 40px;
-    line-height: 40px;
-    gap: 8px;
-    padding-left: 5px;
-  }
-  .add-form .plus-icon {
-    width: 20px;
-    height: 20px;
-    border: 2px dashed #b8956a;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #b8956a;
-    font-size: 14px;
-    flex-shrink: 0;
-    margin-right: 8px;
-  }
-  .add-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    border-bottom: 1px dashed #c8b896;
-    outline: none;
-    font-family: 'Yomogi', cursive;
-    font-size: 1.05rem;
-    color: #4a3a2a;
-    padding: 0 4px;
-    height: 30px;
-  }
-  .add-input::placeholder { color: #b8a890; font-style: italic; }
-  .add-input:focus { border-bottom-color: #d96c5e; }
+/* Toast */
+#save-toast {
+  position: absolute; top:14px; left:50%; transform:translateX(-50%);
+  background: rgba(8,12,16,0.85); border:1px solid var(--blue);
+  color: var(--cyan); font-size:10px; letter-spacing:1.5px;
+  padding:5px 16px; border-radius:2px; z-index:10;
+  opacity:0; transition:opacity 0.3s; white-space:nowrap;
+  pointer-events:none; box-shadow:0 0 12px var(--blue-glow);
+}
+#save-toast.show { opacity:1; }
 
-  .add-repeat-btn {
-    background: rgba(180, 220, 150, 0.2);
-    border: 1.5px dashed #9aba7a;
-    color: #5a7a3a;
-    border-radius: 14px;
-    padding: 4px 10px;
-    cursor: pointer;
-    font-family: 'Yomogi', cursive;
-    font-size: 0.85rem;
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
-  .add-repeat-btn:hover { background: rgba(180, 220, 150, 0.5); }
+/* REC indicator */
+#rec-indicator {
+  position: absolute; top:14px; right:14px;
+  display:none; align-items:center; gap:6px;
+  background:rgba(8,12,16,0.8); border:1px solid rgba(255,60,90,0.4);
+  padding:4px 10px; border-radius:2px; z-index:5;
+}
+#rec-indicator.show { display:flex; }
+#rec-dot {
+  width:7px; height:7px; border-radius:50%;
+  background:var(--rec); box-shadow:0 0 6px var(--rec);
+  animation:blink 1s infinite;
+}
+#rec-time { font-size:11px; color:var(--white); letter-spacing:1px; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
-  .empty-msg {
-    text-align: center;
-    color: #b8a890;
-    padding: 20px 0;
-    font-style: italic;
-  }
+/* Torch indicator (viewfinder内) */
+#torch-indicator {
+  position: absolute; top:14px; left:14px;
+  display:none; align-items:center; gap:5px;
+  background:rgba(8,12,16,0.8); border:1px solid rgba(255,229,102,0.4);
+  padding:4px 10px; border-radius:2px; z-index:5;
+  font-size:9px; letter-spacing:1.5px; color:var(--torch-on);
+}
+#torch-indicator.show { display:flex; }
+#torch-indicator::before {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background:var(--torch-on); box-shadow:0 0 8px var(--torch-on);
+}
 
-  /* メモ */
-  .memo {
-    margin-top: 25px;
-    padding: 15px;
-    background: rgba(255, 240, 200, 0.5);
-    border: 1.5px dashed #c89456;
-    border-radius: 8px;
-    transform: rotate(-0.5deg);
-    font-size: 1rem;
-    color: #5a4a3a;
-    line-height: 1.6;
-    min-height: 60px;
-  }
-  .memo-title {
-    font-weight: bold;
-    color: #d96c5e;
-    margin-bottom: 6px;
-    font-family: 'Kaisei Decol', serif;
-  }
-  .memo-content { outline: none; min-height: 30px; }
-  .memo-content:empty::before {
-    content: 'メモを書く…';
-    color: #c8b896;
-    font-style: italic;
-  }
+/* Flash mode indicator */
+#flash-mode-indicator {
+  position: absolute; top:46px; left:14px;
+  display:none; align-items:center; gap:5px;
+  background:rgba(8,12,16,0.8); border:1px solid rgba(56,200,255,0.4);
+  padding:4px 10px; border-radius:2px; z-index:5;
+  font-size:9px; letter-spacing:1.5px; color:var(--flash-on);
+}
+#flash-mode-indicator.show { display:flex; }
+#flash-mode-indicator::before {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background:var(--flash-on); box-shadow:0 0 8px var(--flash-on);
+}
 
-  /* 落書き */
-  .doodle { position: absolute; opacity: 0.6; pointer-events: none; }
-  .doodle.heart {
-    bottom: 15px; right: 20px;
-    color: #f4a5a5;
-    font-size: 1.5rem;
-    transform: rotate(15deg);
-  }
-  .doodle.flower {
-    top: 80px; right: 15px;
-    color: #f6a623;
-    font-size: 1.3rem;
-    transform: rotate(-10deg);
-  }
+/* Preview thumb */
+#preview-thumb {
+  position: absolute; bottom:18px; left:18px;
+  width:54px; height:54px; border-radius:4px;
+  border:1.5px solid var(--blue); overflow:hidden;
+  cursor:pointer; z-index:5; display:none;
+  box-shadow:0 0 12px var(--blue-glow); transition:transform 0.15s;
+}
+#preview-thumb:active { transform:scale(0.91); }
+#preview-thumb img, #preview-thumb video {
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+#preview-thumb.show { display:block; }
 
-  /* トースト */
-  .toast {
-    position: fixed;
-    top: 30px;
-    left: 50%;
-    transform: translateX(-50%) translateY(-100px);
-    background: #5a4a3a;
-    color: #fffdf5;
-    padding: 12px 24px;
-    border-radius: 30px;
-    font-family: 'Yomogi', cursive;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    transition: transform 0.3s ease;
-    z-index: 1000;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+/* Zoom info */
+#zoom-info {
+  position: absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  background:rgba(8,12,16,0.7); border:1px solid var(--border);
+  padding:4px 14px; border-radius:2px; font-size:12px; letter-spacing:1px;
+  color:var(--white); pointer-events:none; opacity:0; transition:opacity 0.3s; z-index:5;
+}
+#zoom-info.show { opacity:1; }
 
-  /* モーダル：繰り返し設定 */
-  .modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(50, 40, 30, 0.4);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-    padding: 20px;
-  }
-  .modal-backdrop.show { display: flex; }
-  .modal {
-    background: #fffdf5;
-    border-radius: 12px;
-    padding: 25px;
-    max-width: 380px;
-    width: 100%;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.25);
-    border: 2px dashed #b8956a;
-    font-family: 'Yomogi', cursive;
-  }
-  .modal h3 {
-    font-family: 'Kaisei Decol', serif;
-    color: #d96c5e;
-    margin-bottom: 8px;
-    font-size: 1.2rem;
-    text-align: center;
-  }
-  .modal .modal-task {
-    text-align: center;
-    color: #5a4a3a;
-    background: rgba(255, 240, 200, 0.5);
-    padding: 8px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    font-size: 0.95rem;
-  }
-  .modal-help {
-    color: #8a7a6a;
-    font-size: 0.85rem;
-    text-align: center;
-    margin-bottom: 12px;
-  }
+/* ── BOTTOMBAR ── */
+#bottombar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px 30px;
+  background: var(--navy); border-top:1px solid var(--border);
+  flex-shrink:0; position:relative; gap: 6px;
+}
+#bottombar::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,var(--blue),transparent); opacity:0.5;
+}
 
-  .day-picker {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-  }
-  .day-pick {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 2px solid #c8b896;
-    background: #fff;
-    color: #5a4a3a;
-    font-family: 'Yomogi', cursive;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .day-pick:hover { background: #fff5e0; }
-  .day-pick.selected {
-    background: #9aba7a;
-    border-color: #7a9a5a;
-    color: #fff;
-    transform: scale(1.1);
-  }
-  .day-pick[data-day="0"] { color: #d96c5e; }
-  .day-pick[data-day="6"] { color: #5e8ed9; }
-  .day-pick[data-day="0"].selected,
-  .day-pick[data-day="6"].selected { color: #fff; }
+/* Left controls: flip + torch + flash */
+#left-controls {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
 
-  .preset-row {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-  }
-  .preset-btn {
-    background: #fff;
-    border: 1.5px dashed #b8956a;
-    color: #5a4a3a;
-    padding: 5px 12px;
-    border-radius: 18px;
-    cursor: pointer;
-    font-family: 'Yomogi', cursive;
-    font-size: 0.85rem;
-    transition: all 0.15s;
-  }
-  .preset-btn:hover { background: #fff5e0; }
+/* Icon buttons (flip, torch, flash) */
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--panel); border: 1px solid var(--border);
+  color: var(--muted); font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
+  flex-shrink: 0; position: relative;
+}
+.icon-btn:active { transform: scale(0.91); }
 
-  .modal-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-  }
+#torch-btn { font-size: 18px; }
+#torch-btn.on {
+  border-color: var(--torch-on);
+  color: var(--torch-on);
+  box-shadow: 0 0 14px rgba(255,229,102,0.35);
+}
 
-  /* レスポンシブ */
-  @media (max-width: 480px) {
-    .note {
-      padding: 25px 20px 30px 55px;
-      background-size: 100% 36px, 100% 100%;
-      background-image:
-        linear-gradient(transparent 0, transparent 35px, #d4c5a9 35px, #d4c5a9 36px, transparent 36px),
-        linear-gradient(90deg, transparent 0, transparent 44px, #f4a5a5 44px, #f4a5a5 45px, transparent 45px);
-    }
-    .todo-item, .date-line, .add-form {
-      height: 36px;
-      line-height: 36px;
-      font-size: 1rem;
-    }
-    .note-title { font-size: 1.3rem; }
-    .day-tab { width: 44px; height: 44px; font-size: 0.95rem; }
-    .repeat-badge { font-size: 0.65rem; padding: 1px 4px; }
-  }
+/* Flash button */
+#flash-btn { font-size: 14px; font-weight: 700; }
+#flash-btn.on {
+  border-color: var(--flash-on);
+  color: var(--flash-on);
+  box-shadow: 0 0 14px rgba(56,200,255,0.35);
+}
+#flash-btn.auto {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+.flash-label {
+  position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%);
+  font-size: 7px; letter-spacing: 1px; color: var(--muted);
+}
+#flash-btn.on .flash-label { color: var(--flash-on); }
+#flash-btn.auto .flash-label { color: var(--cyan); }
 
-  /* ========== 印刷用スタイル（iOS Safari対応） ========== */
-  @page {
-    size: A4;
-    margin: 12mm;
-  }
+/* Shutter */
+#shutter {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--panel); border: 2px solid var(--blue);
+  box-shadow: 0 0 0 6px var(--blue-lo), 0 0 20px var(--blue-glow);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: transform 0.1s, box-shadow 0.2s, border-color 0.2s;
+  outline: none; flex-shrink: 0;
+}
+#shutter:active { transform: scale(0.91); }
+#shutter.recording {
+  border-color: var(--rec);
+  box-shadow: 0 0 0 6px rgba(255,60,90,0.12), 0 0 24px rgba(255,60,90,0.4);
+  animation: recPulse 1.5s ease-in-out infinite;
+}
+@keyframes recPulse {
+  0%,100% { box-shadow: 0 0 0 6px rgba(255,60,90,0.12), 0 0 24px rgba(255,60,90,0.3); }
+  50%      { box-shadow: 0 0 0 14px rgba(255,60,90,0.04), 0 0 36px rgba(255,60,90,0.5); }
+}
+#shutter-inner {
+  width:26px; height:26px; border-radius:50%; background:white;
+  transition: border-radius 0.2s, width 0.2s, height 0.2s, background 0.2s;
+}
+#shutter.recording #shutter-inner {
+  border-radius:4px; width:22px; height:22px; background:var(--rec);
+}
 
-  @media print {
-    /* iOS Safariは色背景を省略しがち。強制表示 */
-    * {
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-      color-adjust: exact !important;
-    }
+/* Mode tabs */
+#mode-tabs { display:flex; flex-direction:column; gap:5px; }
+.mode-btn {
+  background:none; border:1px solid transparent; color:var(--muted);
+  font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px;
+  padding:5px 12px; border-radius:2px; cursor:pointer; transition:all 0.2s;
+  text-transform:uppercase;
+}
+.mode-btn.active {
+  color:var(--cyan); border-color:rgba(56,200,255,0.3);
+  background:rgba(56,200,255,0.06);
+}
 
-    html, body {
-      background: #fff !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      width: 100% !important;
-      min-height: auto !important;
-      -webkit-text-size-adjust: 100%;
-    }
+/* ── PERMISSION ── */
+#perm-screen {
+  position:absolute; inset:0; background:var(--black);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:20px; z-index:100; padding:48px; text-align:center;
+}
+.perm-logo {
+  width:64px; height:64px; border:1.5px solid var(--blue); border-radius:16px;
+  display:flex; align-items:center; justify-content:center; font-size:28px;
+  box-shadow:0 0 24px var(--blue-glow); background:var(--blue-lo); margin-bottom:4px;
+}
+#perm-screen h2 {
+  font-family:'Rajdhani',sans-serif; font-weight:700;
+  font-size:24px; letter-spacing:4px; color:var(--white); text-transform:uppercase;
+}
+#perm-screen p { font-size:11px; color:var(--muted); line-height:2; max-width:280px; }
+#perm-btn {
+  background:var(--blue); color:white; border:none; border-radius:2px;
+  padding:12px 32px; font-family:'Space Mono',monospace;
+  font-size:11px; letter-spacing:2px; cursor:pointer; text-transform:uppercase;
+  margin-top:8px; box-shadow:0 0 20px var(--blue-glow); transition:background 0.2s;
+}
+#perm-btn:active { background:#1558d6; }
 
-    /* 印刷時に隠す要素 */
-    .page-header,
-    .day-tabs,
-    .toolbar,
-    .add-form,
-    .delete-btn,
-    .toast,
-    .modal-backdrop,
-    .doodle {
-      display: none !important;
-    }
-
-    /* ノートを紙いっぱいに */
-    .note {
-      max-width: 100% !important;
-      width: 100% !important;
-      margin: 0 !important;
-      padding: 15mm 10mm 15mm 22mm !important;
-      box-shadow: none !important;
-      border: 1px solid #d4c5a9 !important;
-      border-radius: 0 !important;
-      page-break-inside: avoid;
-      background-color: #fffdf5 !important;
-      /* 罫線をiOSでも確実に出す */
-      background-image:
-        linear-gradient(transparent 0, transparent 39px, #d4c5a9 39px, #d4c5a9 40px, transparent 40px),
-        linear-gradient(90deg, transparent 0, transparent 18mm, #f4a5a5 18mm, #f4a5a5 calc(18mm + 1px), transparent calc(18mm + 1px)) !important;
-      background-size: 100% 40px, 100% 100% !important;
-    }
-    .note::before { display: none !important; }
-
-    .note-title {
-      font-size: 18pt !important;
-      color: #d96c5e !important;
-      margin-bottom: 12px !important;
-    }
-    .date-line {
-      color: #5a4a3a !important;
-      font-size: 11pt !important;
-    }
-
-    .todo-item {
-      page-break-inside: avoid;
-      color: #3a3a3a !important;
-    }
-    .todo-item .checkbox {
-      border: 2px solid #3a3a3a !important;
-      background: #fff !important;
-    }
-    .todo-item.done .checkbox::after {
-      color: #d96c5e !important;
-    }
-    /* input要素はiOSの印刷で値が出ないことがあるため、印刷時はテキストとして見せる */
-    .todo-item .text {
-      border: none !important;
-      background: transparent !important;
-      color: inherit !important;
-      -webkit-appearance: none;
-      appearance: none;
-    }
-
-    .star-btn {
-      background: transparent !important;
-      border: none !important;
-    }
-    .star-btn:not(.active) { display: none !important; }
-    .star-btn.active { color: #f6a623 !important; }
-
-    .repeat-badge {
-      color: #5a7a3a !important;
-      background: rgba(180, 220, 150, 0.3) !important;
-      border: 1px dashed #9aba7a !important;
-    }
-    .repeat-badge.none { display: none !important; }
-
-    .memo {
-      background: rgba(255, 240, 200, 0.5) !important;
-      border: 1.5px dashed #c89456 !important;
-      page-break-inside: avoid;
-    }
-    .memo-title { color: #d96c5e !important; }
-  }
-
-  /* iOS印刷プレビュー用：印刷前に画面をクリーンに切替えるクラス */
-  body.printing-mode {
-    padding: 0 !important;
-    background: #fff !important;
-  }
-  body.printing-mode .page-header,
-  body.printing-mode .day-tabs,
-  body.printing-mode .toolbar,
-  body.printing-mode .add-form,
-  body.printing-mode .delete-btn,
-  body.printing-mode .modal-backdrop,
-  body.printing-mode .toast {
-    display: none !important;
-  }
-  body.printing-mode .note {
-    margin: 0 auto !important;
-    box-shadow: none !important;
-  }
+/* ── GALLERY MODAL ── */
+#gallery-modal {
+  position:fixed; inset:0; background:rgba(8,12,16,0.97); z-index:200;
+  display:none; flex-direction:column; align-items:center; justify-content:center; padding:24px;
+}
+#gallery-modal.show { display:flex; }
+#gallery-inner img, #gallery-inner video {
+  max-width:100%; max-height:70vh; border-radius:4px;
+  border:1px solid var(--border); object-fit:contain;
+}
+#gallery-controls { display:flex; gap:10px; margin-top:20px; }
+.gallery-btn {
+  background:var(--panel); border:1px solid var(--border); color:var(--muted);
+  padding:10px 20px; border-radius:2px; font-family:'Space Mono',monospace;
+  font-size:10px; letter-spacing:1.5px; cursor:pointer; text-transform:uppercase; transition:all 0.2s;
+}
+.gallery-btn.primary {
+  background:var(--blue); color:white; border-color:var(--blue);
+  box-shadow:0 0 14px var(--blue-glow);
+}
 </style>
 </head>
 <body>
+<div id="app">
 
-<header class="page-header">
-  <h1>📓 手書きToDoノート</h1>
-  <p>曜日タブで切り替え・繰り返し設定・全部コピーできます</p>
-</header>
-
-<nav class="day-tabs" id="dayTabs">
-  <button class="day-tab" data-day="0">日</button>
-  <button class="day-tab" data-day="1">月</button>
-  <button class="day-tab" data-day="2">火</button>
-  <button class="day-tab" data-day="3">水</button>
-  <button class="day-tab" data-day="4">木</button>
-  <button class="day-tab" data-day="5">金</button>
-  <button class="day-tab" data-day="6">土</button>
-</nav>
-
-<div class="toolbar">
-  <button class="btn primary" id="copyAllBtn">
-    <i class="fa-solid fa-copy"></i> ノート全体をコピー
-  </button>
-  <button class="btn" id="copyTextBtn">
-    <i class="fa-solid fa-align-left"></i> テキストだけコピー
-  </button>
-  <button class="btn" id="printBtn">
-    <i class="fa-solid fa-print"></i> 印刷
-  </button>
-  <button class="btn danger" id="clearBtn">
-    <i class="fa-solid fa-trash"></i> この曜日を全消去
-  </button>
-</div>
-
-<article class="note" id="todoNote">
-  <h2 class="note-title" id="noteTitle">今日のやることリスト ✿</h2>
-  <div class="date-line" id="dateLine"></div>
-
-  <ul class="todo-list" id="todoList"></ul>
-
-  <form class="add-form" id="addForm" autocomplete="off">
-    <span class="plus-icon">＋</span>
-    <input type="text" class="add-input" id="addInput" placeholder="新しいタスクを書く…（Enterで追加）">
-    <button type="button" class="add-repeat-btn" id="addRepeatBtn" title="繰り返し設定">
-      <i class="fa-solid fa-repeat"></i> <span id="addRepeatLabel">この曜日のみ</span>
-    </button>
-  </form>
-
-  <div class="memo">
-    <div class="memo-title">＊ memo ＊</div>
-    <div class="memo-content" id="memoContent" contenteditable="true"></div>
+  <!-- PERMISSION -->
+  <div id="perm-screen" style="display: flex;">
+    <div class="perm-logo">📷</div>
+    <h2>Muon Cam</h2>
+    <p>カメラへのアクセスが拒否されました。
+ブラウザの設定から許可してください。</p>
+    <button id="perm-btn" onclick="initCamera()">起動する</button>
   </div>
 
-  <span class="doodle flower">✿</span>
-  <span class="doodle heart">♡</span>
-</article>
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div class="brand">MUON<span>CAM</span></div>
+    <div id="mode-info">PHOTO</div>
+    <div class="silent-badge">SILENT</div>
+  </div>
 
-<div class="toast" id="toast">コピーしました！</div>
+  <!-- VIEWFINDER -->
+  <div id="viewfinder-wrap">
+    <video id="video" autoplay="" playsinline="" muted="" disablepictureinpicture="" disableremoteplayback="" webkit-playsinline="true" x-webkit-airplay="deny" controls="false"></video>
+    <div id="grid-overlay"></div>
+    <div class="bracket tl"></div>
+    <div class="bracket tr"></div>
+    <div class="bracket bl"></div>
+    <div class="bracket br"></div>
+    <div class="center-dot"></div>
+    <div id="flash"></div>
+    <div id="save-toast">SAVED</div>
+    <div id="torch-indicator">TORCH ON</div>
+    <div id="flash-mode-indicator">FLASH ON</div>
+    <div id="rec-indicator"><div id="rec-dot"></div><span id="rec-time">00:00</span></div>
+    <div id="preview-thumb"></div>
+    <div id="zoom-info">1.0×</div>
+  </div>
 
-<!-- 繰り返し設定モーダル -->
-<div class="modal-backdrop" id="repeatModal">
-  <div class="modal">
-    <h3><i class="fa-solid fa-repeat"></i> 繰り返し設定</h3>
-    <div class="modal-task" id="modalTaskText">―</div>
-    <div class="modal-help">表示したい曜日を選んでください</div>
-
-    <div class="preset-row">
-      <button class="preset-btn" data-preset="weekday">平日のみ</button>
-      <button class="preset-btn" data-preset="weekend">週末のみ</button>
-      <button class="preset-btn" data-preset="everyday">毎日</button>
-      <button class="preset-btn" data-preset="single">この曜日のみ</button>
+  <!-- BOTTOMBAR -->
+  <div id="bottombar">
+    <!-- 左：カメラ反転 + トーチ + フラッシュ -->
+    <div id="left-controls">
+      <button class="icon-btn" id="flip-btn" onclick="flipCamera()" title="カメラ切替">⟳</button>
+      <button class="icon-btn" id="torch-btn" onclick="toggleTorch()" title="ライト点灯/消灯">🔦</button>
+      <button class="icon-btn" id="flash-btn" onclick="cycleFlash()" title="フラッシュ設定">⚡<span class="flash-label">OFF</span></button>
     </div>
 
-    <div class="day-picker" id="dayPicker">
-      <button class="day-pick" data-day="0">日</button>
-      <button class="day-pick" data-day="1">月</button>
-      <button class="day-pick" data-day="2">火</button>
-      <button class="day-pick" data-day="3">水</button>
-      <button class="day-pick" data-day="4">木</button>
-      <button class="day-pick" data-day="5">金</button>
-      <button class="day-pick" data-day="6">土</button>
-    </div>
+    <!-- 中央：シャッター -->
+    <button id="shutter" onclick="handleShutter()">
+      <div id="shutter-inner"></div>
+    </button>
 
-    <div class="modal-actions">
-      <button class="btn" id="modalCancel">キャンセル</button>
-      <button class="btn primary" id="modalSave">保存</button>
+    <!-- 右：モード -->
+    <div id="mode-tabs">
+      <button class="mode-btn active" onclick="setMode(&#39;photo&#39;,this)">PHOTO</button>
+      <button class="mode-btn" onclick="setMode(&#39;video&#39;,this)">VIDEO</button>
+    </div>
+  </div>
+
+  <!-- GALLERY -->
+  <div id="gallery-modal">
+    <div id="gallery-inner"></div>
+    <div id="gallery-controls">
+      <button class="gallery-btn" onclick="closeGallery()">CLOSE</button>
+      <button class="gallery-btn primary" id="dl-btn">SAVE AGAIN</button>
     </div>
   </div>
 </div>
 
 <script>
-  const STORAGE_KEY = 'handwritten_todo_v3';
-  const DAYS = ['日', '月', '火', '水', '木', '金', '土'];
-  const DAY_NAMES = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
+let stream         = null;
+let facingMode     = 'environment';
+let currentMode    = 'photo';
+let mediaRecorder  = null;
+let recordedChunks = [];
+let recTimer       = null;
+let recSecs        = 0;
+let currentZoom    = 1;
+let initialPinchDist = null;
+let lastCaptureSrc   = null;
+let lastCaptureType  = 'image';
+let torchOn          = false;
+let torchTrack       = null; // torch対応のvideoトラック
+let pinchZoomSetup   = false;
+let flashMode        = 'off'; // 'off' | 'on' | 'auto'
+let isInitializing   = false;
 
-  /*
-   * データ構造（v3）：
-   * {
-   *   tasks: [
-   *     { id, text, star, repeatDays:[0..6], doneByDay:{0:false,1:true,...} }
-   *   ],
-   *   memos: { 0:'', 1:'', ... }
-   * }
-   * repeatDays に含まれる曜日に表示される。
-   * 完了状態は曜日ごとに独立（毎週リセットしたい場合は別途）。
-   */
+const video        = document.getElementById('video');
+const flash        = document.getElementById('flash');
+const recInd       = document.getElementById('rec-indicator');
+const recTimeEl    = document.getElementById('rec-time');
+const toast        = document.getElementById('save-toast');
+const previewThumb = document.getElementById('preview-thumb');
+const shutterBtn   = document.getElementById('shutter');
+const zoomInfo     = document.getElementById('zoom-info');
+const modeInfo     = document.getElementById('mode-info');
+const torchBtn     = document.getElementById('torch-btn');
+const torchInd     = document.getElementById('torch-indicator');
+const flashBtn     = document.getElementById('flash-btn');
+const flashModeInd = document.getElementById('flash-mode-indicator');
 
-  const SAMPLE = {
-    tasks: [
-      { id: uid(), text: '朝のコーヒーを淹れる', star: false, repeatDays: [0,1,2,3,4,5,6], doneByDay: {} },
-      { id: uid(), text: 'メール返信', star: false, repeatDays: [1,2,3,4,5], doneByDay: {} },
-      { id: uid(), text: '週のはじめミーティング', star: true, repeatDays: [1], doneByDay: {} },
-      { id: uid(), text: '14時 オンラインMTG', star: false, repeatDays: [3], doneByDay: {} },
-      { id: uid(), text: 'ジムに行く', star: false, repeatDays: [2,4], doneByDay: {} },
-      { id: uid(), text: '週次レポート提出', star: true, repeatDays: [5], doneByDay: {} },
-      { id: uid(), text: '部屋の片付け', star: false, repeatDays: [6], doneByDay: {} },
-      { id: uid(), text: 'ゆっくり朝寝坊', star: true, repeatDays: [0,6], doneByDay: {} },
-      { id: uid(), text: '読書 30分', star: false, repeatDays: [0,1,2,3,4,5,6], doneByDay: {} }
-    ],
-    memos: {
-      0: '日曜日はリフレッシュの日 ♡',
-      1: '一週間のスタート、無理せず！',
-      2: '',
-      3: '今日もマイペースで頑張ろう。',
-      4: '',
-      5: 'やっと金曜日〜！',
-      6: '土曜日はゆったりタイム ✿'
+// ── ページ再表示時の黒画面バグ対策（強化版）──────────────────
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState === 'visible') {
+    await restoreCamera();
+  } else {
+    // 非表示時はトーチを消しておく（バッテリー対策）
+    if (torchOn) {
+      try { await torchTrack?.applyConstraints({ advanced: [{ torch: false }] }); } catch(e) {}
     }
-  };
-
-  function uid() {
-    return 't_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
   }
+});
 
-  // 重要マークの定義
-  const MARK_DEFS = {
-    none:    { symbol: '★', label: 'なし',     plain: '' },
-    star:    { symbol: '★', label: '重要',     plain: '★' },
-    fire:    { symbol: '🔥', label: '急ぎ',     plain: '🔥' },
-    heart:   { symbol: '♥', label: 'お気に入り', plain: '♥' },
-    flag:    { symbol: '⚑', label: '目印',     plain: '⚑' },
-    bolt:    { symbol: '⚡', label: '集中',     plain: '⚡' },
-    exclaim: { symbol: '!', label: '注意',     plain: '!' }
-  };
-  const MARK_ORDER = ['star', 'fire', 'heart', 'flag', 'bolt', 'exclaim', 'none'];
+// ページ復帰時のフォーカスイベントでも復元
+window.addEventListener('focus', restoreCamera);
+window.addEventListener('pageshow', (e) => {
+  // bfcache から復帰した場合も含めて常に復元
+  restoreCamera();
+});
 
-  // タスクから現在のマークを取得（旧データ互換: star=true → 'star'）
-  function getTaskMark(task) {
-    if (task.mark) return task.mark;
-    if (task.star === true) return 'star';
-    return 'none';
-  }
-  function setTaskMark(task, mark) {
-    task.mark = mark;
-    // 互換性のためstarも同期
-    task.star = (mark !== 'none');
-  }
-
-  // 旧バージョンからの移行（v2 → v3）
-  function migrate() {
-    try {
-      const old = localStorage.getItem('handwritten_todo_v2');
-      if (old && !localStorage.getItem(STORAGE_KEY)) {
-        const oldData = JSON.parse(old);
-        const tasks = [];
-        const memos = {};
-        for (let d = 0; d < 7; d++) {
-          if (oldData[d]) {
-            memos[d] = oldData[d].memo || '';
-            (oldData[d].todos || []).forEach(t => {
-              tasks.push({
-                id: uid(),
-                text: t.text,
-                star: !!t.star,
-                repeatDays: [d],
-                doneByDay: t.done ? { [d]: true } : {}
-              });
-            });
-          } else { memos[d] = ''; }
-        }
-        return { tasks, memos };
-      }
-    } catch {}
-    return null;
-  }
-
-  let state = loadState();
-  let currentDay = new Date().getDay();
-  let pendingRepeatDays = [currentDay]; // 新規追加時の繰り返し選択
-  let editingTaskId = null;
-
-  function loadState() {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
-      const migrated = migrate();
-      if (migrated) return migrated;
-    } catch {}
-    return JSON.parse(JSON.stringify(SAMPLE));
-  }
-  function saveState() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }
-
-  // DOM参照
-  const todoList = document.getElementById('todoList');
-  const memoContent = document.getElementById('memoContent');
-  const noteTitle = document.getElementById('noteTitle');
-  const dateLine = document.getElementById('dateLine');
-  const addRepeatLabel = document.getElementById('addRepeatLabel');
-
-  // 繰り返しラベル整形
-  function formatRepeatLabel(days) {
-    if (!days || days.length === 0) return '繰り返しなし';
-    if (days.length === 7) return '毎日';
-    const sorted = [...days].sort();
-    const weekdays = [1,2,3,4,5];
-    const weekend = [0,6];
-    if (sorted.length === 5 && weekdays.every(d => sorted.includes(d))) return '平日';
-    if (sorted.length === 2 && weekend.every(d => sorted.includes(d))) return '週末';
-    if (sorted.length === 1) return DAYS[sorted[0]] + '曜のみ';
-    return sorted.map(d => DAYS[d]).join('・');
-  }
-
-  function render() {
-    document.querySelectorAll('.day-tab').forEach(tab => {
-      tab.classList.toggle('active', Number(tab.dataset.day) === currentDay);
-    });
-
-    noteTitle.textContent = `${DAY_NAMES[currentDay]}のやることリスト ✿`;
-
-    const today = new Date();
-    if (currentDay === today.getDay()) {
-      dateLine.textContent = `${today.getFullYear()}年 ${today.getMonth() + 1}月 ${today.getDate()}日 (${DAYS[currentDay]})`;
-    } else {
-      dateLine.textContent = `${DAYS[currentDay]}曜日のページ`;
-    }
-
-    // 当該曜日のタスクを抽出
-    const visible = state.tasks.filter(t => (t.repeatDays || []).includes(currentDay));
-
-    todoList.innerHTML = '';
-    if (visible.length === 0) {
-      const empty = document.createElement('li');
-      empty.className = 'empty-msg';
-      empty.textContent = '✎ 下のフォームから追加してね';
-      todoList.appendChild(empty);
-    } else {
-      visible.forEach(task => {
-        const li = document.createElement('li');
-        const isDone = !!(task.doneByDay && task.doneByDay[currentDay]);
-        li.className = 'todo-item' + (isDone ? ' done' : '');
-
-        // チェックボックス
-        const checkbox = document.createElement('span');
-        checkbox.className = 'checkbox';
-        checkbox.addEventListener('click', () => {
-          if (!task.doneByDay) task.doneByDay = {};
-          task.doneByDay[currentDay] = !task.doneByDay[currentDay];
-          saveState();
-          render();
-        });
-
-        // テキスト
-        const textInput = document.createElement('input');
-        textInput.type = 'text';
-        textInput.className = 'text';
-        textInput.value = task.text;
-        textInput.addEventListener('change', e => {
-          task.text = e.target.value;
-          saveState();
-        });
-        textInput.addEventListener('blur', e => {
-          if (!e.target.value.trim()) {
-            const idx = state.tasks.findIndex(t => t.id === task.id);
-            if (idx >= 0) state.tasks.splice(idx, 1);
-            saveState();
-            render();
-          }
-        });
-
-        // 繰り返しバッジ
-        const repeatBadge = document.createElement('span');
-        const days = task.repeatDays || [];
-        const isOnlyThisDay = days.length === 1 && days[0] === currentDay;
-        repeatBadge.className = 'repeat-badge' + (isOnlyThisDay ? ' none' : '');
-        repeatBadge.innerHTML = `<i class="fa-solid fa-repeat"></i> ${formatRepeatLabel(days)}`;
-        repeatBadge.title = 'クリックで繰り返し設定を変更';
-        repeatBadge.addEventListener('click', () => openRepeatModal(task.id));
-
-        // 重要マーク（複数種から選択）
-        const currentMark = getTaskMark(task);
-        const markDef = MARK_DEFS[currentMark] || MARK_DEFS.none;
-        const starBtn = document.createElement('button');
-        starBtn.className = 'star-btn' + (currentMark !== 'none' ? ' active mark-' + currentMark : '');
-        starBtn.innerHTML = markDef.symbol || '★';
-        starBtn.title = '重要マーク：クリックで切り替え';
-        starBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          openMarkPopover(starBtn, task);
-        });
-
-        // ×
-        const delBtn = document.createElement('button');
-        delBtn.className = 'delete-btn';
-        delBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-        delBtn.title = '削除';
-        delBtn.addEventListener('click', () => {
-          // 繰り返し設定がある場合の確認
-          if ((task.repeatDays || []).length > 1) {
-            const choice = confirm(
-              `「${task.text}」は ${formatRepeatLabel(task.repeatDays)} で繰り返し設定されています。\n\n` +
-              `OK：すべての曜日から削除\n` +
-              `キャンセル：${DAYS[currentDay]}曜日のみ削除`
-            );
-            if (choice) {
-              const idx = state.tasks.findIndex(t => t.id === task.id);
-              if (idx >= 0) state.tasks.splice(idx, 1);
-            } else {
-              task.repeatDays = task.repeatDays.filter(d => d !== currentDay);
-              if (task.doneByDay) delete task.doneByDay[currentDay];
-            }
-          } else {
-            const idx = state.tasks.findIndex(t => t.id === task.id);
-            if (idx >= 0) state.tasks.splice(idx, 1);
-          }
-          saveState();
-          render();
-        });
-
-        li.append(checkbox, textInput, repeatBadge, starBtn, delBtn);
-        todoList.appendChild(li);
+// iOS Safariでのpauseバグ対策（強化）
+video.addEventListener('pause', () => {
+  if (document.visibilityState === 'visible' && stream) {
+    // 複数回リトライ（ダウンロードキャンセル後の確実な復旧）
+    let retry = 0;
+    const tryPlay = () => {
+      video.play().catch(() => {
+        if (retry++ < 3) setTimeout(tryPlay, 150);
+        else ensureVideoPlaying();
       });
-    }
-
-    memoContent.textContent = (state.memos && state.memos[currentDay]) || '';
-
-    // 追加フォームのラベル更新
-    addRepeatLabel.textContent = formatRepeatLabel(pendingRepeatDays);
-  }
-
-  // 曜日タブ
-  document.querySelectorAll('.day-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      currentDay = Number(tab.dataset.day);
-      pendingRepeatDays = [currentDay];
-      render();
-    });
-  });
-
-  // 新規追加
-  document.getElementById('addForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const input = document.getElementById('addInput');
-    const text = input.value.trim();
-    if (!text) return;
-    const repeatDays = pendingRepeatDays.length > 0 ? [...pendingRepeatDays] : [currentDay];
-    state.tasks.push({
-      id: uid(),
-      text,
-      star: false,
-      repeatDays,
-      doneByDay: {}
-    });
-    saveState();
-    input.value = '';
-    pendingRepeatDays = [currentDay];
-    render();
-    input.focus();
-  });
-
-  // 新規追加用の繰り返し設定ボタン
-  document.getElementById('addRepeatBtn').addEventListener('click', () => {
-    openRepeatModal(null);
-  });
-
-  // ===== 重要マーク選択ポップオーバー =====
-  let currentMarkPopover = null;
-  function openMarkPopover(anchorBtn, task) {
-    closeMarkPopover();
-    const currentMark = getTaskMark(task);
-
-    const pop = document.createElement('div');
-    pop.className = 'mark-popover show';
-    pop.addEventListener('click', e => e.stopPropagation());
-
-    MARK_ORDER.forEach(key => {
-      const def = MARK_DEFS[key];
-      const opt = document.createElement('button');
-      opt.type = 'button';
-      opt.className = 'mark-option opt-' + key + (key === currentMark ? ' current' : '');
-      opt.innerHTML = key === 'none' ? '✕' : def.symbol;
-      opt.title = def.label;
-      opt.addEventListener('click', () => {
-        setTaskMark(task, key);
-        saveState();
-        closeMarkPopover();
-        render();
-      });
-      pop.appendChild(opt);
-    });
-
-    anchorBtn.appendChild(pop);
-    currentMarkPopover = pop;
-
-    // 画面端の判定：ボタンが画面下部すぎる場合は下に出す
-    requestAnimationFrame(() => {
-      const btnRect = anchorBtn.getBoundingClientRect();
-      const popRect = pop.getBoundingClientRect();
-      const spaceAbove = btnRect.top;
-      const needed = popRect.height + 16;
-      // 上に出すスペースがなく、下にスペースがあれば下方向へ
-      if (spaceAbove < needed && (window.innerHeight - btnRect.bottom) > needed) {
-        pop.classList.add('below');
-      }
-    });
-
-    // 外側クリックで閉じる
-    setTimeout(() => {
-      document.addEventListener('click', closeMarkPopover, { once: true });
-    }, 0);
-  }
-  function closeMarkPopover() {
-    if (currentMarkPopover && currentMarkPopover.parentNode) {
-      currentMarkPopover.parentNode.removeChild(currentMarkPopover);
-    }
-    currentMarkPopover = null;
-  }
-
-  // メモ
-  memoContent.addEventListener('input', () => {
-    if (!state.memos) state.memos = {};
-    state.memos[currentDay] = memoContent.textContent;
-    saveState();
-  });
-
-  // 全消去（この曜日のみ）
-  document.getElementById('clearBtn').addEventListener('click', () => {
-    if (!confirm(`${DAY_NAMES[currentDay]}のタスクを全部消去しますか？\n（繰り返しタスクはこの曜日からのみ外れます）`)) return;
-    state.tasks = state.tasks.map(t => {
-      if (!(t.repeatDays || []).includes(currentDay)) return t;
-      const newDays = t.repeatDays.filter(d => d !== currentDay);
-      if (t.doneByDay) delete t.doneByDay[currentDay];
-      return { ...t, repeatDays: newDays };
-    }).filter(t => (t.repeatDays || []).length > 0);
-    if (state.memos) state.memos[currentDay] = '';
-    saveState();
-    render();
-    showToast('🗑 消去しました');
-  });
-
-  // ===== 繰り返し設定モーダル =====
-  const repeatModal = document.getElementById('repeatModal');
-  const dayPicker = document.getElementById('dayPicker');
-  const modalTaskText = document.getElementById('modalTaskText');
-  let modalSelectedDays = [];
-
-  function openRepeatModal(taskId) {
-    editingTaskId = taskId;
-    if (taskId) {
-      const task = state.tasks.find(t => t.id === taskId);
-      if (!task) return;
-      modalTaskText.textContent = `「${task.text}」`;
-      modalSelectedDays = [...(task.repeatDays || [])];
-    } else {
-      modalTaskText.textContent = '新しいタスクの繰り返し';
-      modalSelectedDays = [...pendingRepeatDays];
-    }
-    updateDayPicker();
-    repeatModal.classList.add('show');
-  }
-  function closeRepeatModal() {
-    repeatModal.classList.remove('show');
-    editingTaskId = null;
-  }
-  function updateDayPicker() {
-    dayPicker.querySelectorAll('.day-pick').forEach(btn => {
-      btn.classList.toggle('selected', modalSelectedDays.includes(Number(btn.dataset.day)));
-    });
-  }
-  dayPicker.querySelectorAll('.day-pick').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const d = Number(btn.dataset.day);
-      if (modalSelectedDays.includes(d)) {
-        modalSelectedDays = modalSelectedDays.filter(x => x !== d);
-      } else {
-        modalSelectedDays.push(d);
-      }
-      updateDayPicker();
-    });
-  });
-  // プリセット
-  document.querySelectorAll('.preset-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const p = btn.dataset.preset;
-      if (p === 'weekday') modalSelectedDays = [1,2,3,4,5];
-      else if (p === 'weekend') modalSelectedDays = [0,6];
-      else if (p === 'everyday') modalSelectedDays = [0,1,2,3,4,5,6];
-      else if (p === 'single') modalSelectedDays = [currentDay];
-      updateDayPicker();
-    });
-  });
-
-  document.getElementById('modalCancel').addEventListener('click', closeRepeatModal);
-  repeatModal.addEventListener('click', e => {
-    if (e.target === repeatModal) closeRepeatModal();
-  });
-  document.getElementById('modalSave').addEventListener('click', () => {
-    if (modalSelectedDays.length === 0) {
-      alert('少なくとも1つの曜日を選んでください');
-      return;
-    }
-    if (editingTaskId) {
-      const task = state.tasks.find(t => t.id === editingTaskId);
-      if (task) {
-        task.repeatDays = [...modalSelectedDays].sort();
-        // 表示曜日に含まれない曜日のdone状態は掃除
-        if (task.doneByDay) {
-          Object.keys(task.doneByDay).forEach(d => {
-            if (!task.repeatDays.includes(Number(d))) delete task.doneByDay[d];
-          });
-        }
-        saveState();
-        showToast('✓ 繰り返しを更新しました');
-      }
-    } else {
-      pendingRepeatDays = [...modalSelectedDays].sort();
-    }
-    closeRepeatModal();
-    render();
-  });
-
-  // ===== コピー & 印刷 =====
-  const toast = document.getElementById('toast');
-  function showToast(msg) {
-    toast.textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 1800);
-  }
-
-  document.getElementById('copyAllBtn').addEventListener('click', async () => {
-    const note = document.getElementById('todoNote').cloneNode(true);
-    note.querySelectorAll('input.text').forEach(inp => {
-      const span = document.createElement('span');
-      span.className = 'text';
-      span.textContent = inp.value;
-      inp.replaceWith(span);
-    });
-    note.querySelectorAll('.delete-btn, .add-form').forEach(el => el.remove());
-    const htmlContent = `<div style="font-family:'Yomogi',cursive;background:#fffdf5;padding:20px;border-radius:6px;max-width:600px;">${note.outerHTML}</div>`;
-    const textContent = buildPlainText();
-
-    try {
-      if (navigator.clipboard && window.ClipboardItem) {
-        await navigator.clipboard.write([
-          new ClipboardItem({
-            'text/html': new Blob([htmlContent], { type: 'text/html' }),
-            'text/plain': new Blob([textContent], { type: 'text/plain' })
-          })
-        ]);
-        showToast('✓ ノート全体をコピーしました');
-      } else {
-        fallbackCopy(textContent);
-        showToast('✓ コピーしました');
-      }
-    } catch {
-      fallbackCopy(textContent);
-      showToast('✓ テキストとしてコピーしました');
-    }
-  });
-
-  document.getElementById('copyTextBtn').addEventListener('click', async () => {
-    const text = buildPlainText();
-    try {
-      await navigator.clipboard.writeText(text);
-      showToast('✓ テキストをコピーしました');
-    } catch {
-      fallbackCopy(text);
-      showToast('✓ コピーしました');
-    }
-  });
-
-  // ===== 印刷（iOS対応） =====
-  // iOS Safariは window.print() に癖があるため、
-  // ・input要素の値を一時的にspan化して確実に印刷反映
-  // ・afterprintで元に戻す
-  // ・iOSで印刷ダイアログが開かない場合は新規ウィンドウで印刷可能ページを開くフォールバック
-  function isIOS() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  }
-
-  // 印刷直前：input.text を span.text に差し替え（値を確実に表示）
-  function prepareForPrint() {
-    document.body.classList.add('printing-mode');
-    const inputs = document.querySelectorAll('.todo-item input.text');
-    inputs.forEach(inp => {
-      const span = document.createElement('span');
-      span.className = 'text print-text-temp';
-      span.textContent = inp.value;
-      span.style.flex = '1';
-      span.dataset.originalId = 'restore';
-      inp.style.display = 'none';
-      inp.classList.add('print-hidden-input');
-      inp.parentNode.insertBefore(span, inp.nextSibling);
-    });
-  }
-
-  // 印刷後：元の input に戻す
-  function restoreAfterPrint() {
-    document.body.classList.remove('printing-mode');
-    document.querySelectorAll('.print-text-temp').forEach(el => el.remove());
-    document.querySelectorAll('.print-hidden-input').forEach(inp => {
-      inp.style.display = '';
-      inp.classList.remove('print-hidden-input');
-    });
-  }
-
-  // iOS用フォールバック：新規ウィンドウに印刷専用HTMLを生成して開く
-  function iosPrintFallback() {
-    const noteClone = document.getElementById('todoNote').cloneNode(true);
-    // input → span変換
-    noteClone.querySelectorAll('input.text').forEach(inp => {
-      const span = document.createElement('span');
-      span.className = 'text';
-      span.textContent = inp.value;
-      inp.replaceWith(span);
-    });
-    // 編集UI削除
-    noteClone.querySelectorAll('.delete-btn, .add-form, .repeat-badge.none').forEach(el => el.remove());
-    // 未アクティブの星を削除
-    noteClone.querySelectorAll('.star-btn:not(.active)').forEach(el => el.remove());
-
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      alert('ポップアップがブロックされました。\nブラウザの設定でポップアップを許可するか、\n「共有」→「プリント」をご利用ください。');
-      return;
-    }
-
-    // 現在ページのスタイルを取得
-    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
-      .map(el => el.outerHTML).join('\n');
-
-    const title = `${DAY_NAMES[currentDay]}のToDo`;
-    // 注意：閉じタグを直書きするとHTMLパーサーがJSを早期終了させる原因になるため、
-    // 文字列を分割して結合する形で記述する。
-    const SLASH = '<' + '/';
-    const html = '<!DOCTYPE html>\n' +
-      '<html lang="ja">\n' +
-      '<head>\n' +
-      '<meta charset="UTF-8">\n' +
-      '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
-      '<title>' + title + SLASH + 'title>\n' +
-      styles + '\n' +
-      '<style>\n' +
-      '  body {\n' +
-      '    background: #fff !important;\n' +
-      '    padding: 20px !important;\n' +
-      '    margin: 0 !important;\n' +
-      '    -webkit-print-color-adjust: exact !important;\n' +
-      '    print-color-adjust: exact !important;\n' +
-      '  }\n' +
-      '  .note { margin: 0 auto !important; box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important; }\n' +
-      '  .print-actions { text-align: center; margin: 20px 0; font-family: "Yomogi", cursive; }\n' +
-      '  .print-actions button {\n' +
-      '    background: #f6c177; border: 2px dashed #c89456; color: #5a4a3a;\n' +
-      '    padding: 12px 24px; border-radius: 30px; font-family: inherit;\n' +
-      '    font-size: 1rem; cursor: pointer; margin: 0 6px;\n' +
-      '  }\n' +
-      '  .ios-hint {\n' +
-      '    background: rgba(255, 240, 200, 0.7); border: 1.5px dashed #c89456;\n' +
-      '    border-radius: 8px; padding: 12px 16px; max-width: 500px;\n' +
-      '    margin: 15px auto; font-family: "Yomogi", cursive;\n' +
-      '    color: #5a4a3a; font-size: 0.95rem; line-height: 1.6;\n' +
-      '  }\n' +
-      '  @media print { .print-actions, .ios-hint { display: none !important; } }\n' +
-      SLASH + 'style>\n' +
-      SLASH + 'head>\n' +
-      '<body>\n' +
-      '  <div class="ios-hint">\n' +
-      '    📱 iPhone/iPadの方は、画面下の <strong>共有ボタン（□↑）' + SLASH + 'strong> をタップ →\n' +
-      '    <strong>「プリント」' + SLASH + 'strong> を選んでください。<br>\n' +
-      '    （または下のボタンから印刷ダイアログを開けます）\n' +
-      '  ' + SLASH + 'div>\n' +
-      '  <div class="print-actions">\n' +
-      '    <button onclick="window.print()">🖨 印刷する' + SLASH + 'button>\n' +
-      '    <button onclick="window.close()">✕ 閉じる' + SLASH + 'button>\n' +
-      '  ' + SLASH + 'div>\n' +
-      noteClone.outerHTML + '\n' +
-      SLASH + 'body>\n' +
-      SLASH + 'html>';
-    printWindow.document.write(html);
-    printWindow.document.close();
-
-    // フォント読み込み待ち
-    setTimeout(() => {
-      try { printWindow.focus(); } catch {}
-      // iOSではユーザー操作起点でないとprintが効きにくいので、自動呼び出しはせずユーザーに任せる
-      if (!isIOS()) {
-        try { printWindow.print(); } catch {}
-      }
-    }, 600);
-  }
-
-  document.getElementById('printBtn').addEventListener('click', () => {
-    if (isIOS()) {
-      // iOSは新規ウィンドウ方式が安定
-      iosPrintFallback();
-      return;
-    }
-
-    // PC/Android：その場で印刷
-    prepareForPrint();
-
-    // beforeprint/afterprintで自動復元
-    const onAfterPrint = () => {
-      restoreAfterPrint();
-      window.removeEventListener('afterprint', onAfterPrint);
     };
-    window.addEventListener('afterprint', onAfterPrint);
+    tryPlay();
+  }
+});
 
-    // フォールバック：3秒後に強制復元
-    setTimeout(() => restoreAfterPrint(), 3000);
+// ダウンロード関連でvideoが止まった場合の追加対策
+video.addEventListener('suspend', () => {
+  if (document.visibilityState === 'visible' && stream) {
+    setTimeout(() => ensureVideoPlaying && ensureVideoPlaying(), 100);
+  }
+});
+video.addEventListener('stalled', () => {
+  if (document.visibilityState === 'visible' && stream) {
+    setTimeout(() => ensureVideoPlaying && ensureVideoPlaying(), 100);
+  }
+});
 
-    setTimeout(() => {
-      try {
-        window.print();
-      } catch {
-        restoreAfterPrint();
-      }
-    }, 100);
-  });
-
-  function buildPlainText() {
-    const visible = state.tasks.filter(t => (t.repeatDays || []).includes(currentDay));
-    let lines = [`■ ${DAY_NAMES[currentDay]}のやることリスト`, dateLine.textContent.trim(), ''];
-    visible.forEach(t => {
-      const done = !!(t.doneByDay && t.doneByDay[currentDay]);
-      const label = formatRepeatLabel(t.repeatDays);
-      const repeatMark = (t.repeatDays && t.repeatDays.length > 1) ? ` 🔁(${label})` : '';
-      const mark = getTaskMark(t);
-      const markStr = mark !== 'none' ? ' ' + MARK_DEFS[mark].plain : '';
-      lines.push(`${done ? '[x]' : '[ ]'} ${t.text}${markStr}${repeatMark}`);
-    });
-    const memo = (state.memos && state.memos[currentDay]) || '';
-    if (memo.trim()) {
-      lines.push('', '--- memo ---', memo.trim());
+// ウィンドウ全体のblur/focusでも復旧（保存ダイアログ閉じた時用）
+window.addEventListener('blur', () => {
+  // ダウンロードダイアログが開いた可能性 → 後で復旧する準備
+  setTimeout(() => {
+    if (document.visibilityState === 'visible' && stream && video.paused) {
+      video.play().catch(() => ensureVideoPlaying && ensureVideoPlaying());
     }
-    return lines.join('\n');
+  }, 800);
+});
+
+// ストリームが切れたときの自動復旧
+video.addEventListener('emptied', () => {
+  if (document.visibilityState === 'visible' && !isInitializing) {
+    restoreCamera();
+  }
+});
+
+// カメラ復元処理（黒画面バグの根本対策）
+async function restoreCamera() {
+  if (isInitializing) return;
+  if (document.getElementById('perm-screen').style.display !== 'none' &&
+      document.getElementById('perm-screen').style.display !== '') {
+    // 初回起動前ならスキップ
+    if (!stream) return;
   }
 
-  function fallbackCopy(content) {
-    const ta = document.createElement('textarea');
-    ta.value = content;
-    ta.style.position = 'fixed';
-    ta.style.left = '-9999px';
-    document.body.appendChild(ta);
-    ta.select();
-    try { document.execCommand('copy'); } catch {}
-    document.body.removeChild(ta);
+  // ストリームが無効化されているかチェック
+  let needsReinit = false;
+  if (!stream) {
+    needsReinit = true;
+  } else {
+    const tracks = stream.getVideoTracks();
+    if (tracks.length === 0) {
+      needsReinit = true;
+    } else {
+      const t = tracks[0];
+      if (t.readyState === 'ended' || !t.enabled || t.muted) {
+        needsReinit = true;
+      }
+    }
   }
 
-  // 初期描画
-  render();
+  if (needsReinit) {
+    // 完全に再起動
+    await initCamera();
+  } else {
+    // ストリームは生きているがvideoが止まっている可能性
+    try {
+      video.srcObject = null;
+      // 次のフレームで再アタッチ
+      await new Promise(r => requestAnimationFrame(r));
+      video.srcObject = stream;
+      await video.play();
+    } catch(e) {
+      await initCamera();
+    }
+  }
+}
+
+// ── CAMERA ────────────────────────────────────────────
+async function initCamera() {
+  if (isInitializing) return;
+  isInitializing = true;
+
+  try {
+    document.getElementById('perm-screen').style.display = 'none';
+
+    // 既存ストリームを完全に解放
+    if (stream) {
+      stream.getTracks().forEach(t => {
+        try { t.stop(); } catch(e) {}
+      });
+      stream = null;
+    }
+    video.srcObject = null;
+
+    torchOn = false;
+    torchTrack = null;
+    updateTorchUI();
+
+    const constraints = {
+      video: {
+        facingMode,
+        width:  { ideal: 1920 },
+        height: { ideal: 1080 }
+      },
+      audio: true
+    };
+
+    try {
+      stream = await navigator.mediaDevices.getUserMedia(constraints);
+    } catch(e) {
+      // マイク拒否 → 映像のみ
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: constraints.video, audio: false
+        });
+      } catch(e2) {
+        const ps = document.getElementById('perm-screen');
+        ps.style.display = 'flex';
+        ps.querySelector('p').textContent =
+          'カメラへのアクセスが拒否されました。\nブラウザの設定から許可してください。';
+        return;
+      }
+    }
+
+    // torchに使うvideoトラックを保存
+    torchTrack = stream.getVideoTracks()[0] || null;
+
+    video.srcObject = stream;
+    // autoplayが効かない場合の保険（複数回試行）
+    let played = false;
+    for (let i = 0; i < 3 && !played; i++) {
+      try {
+        await video.play();
+        played = true;
+      } catch(e) {
+        await new Promise(r => setTimeout(r, 100));
+      }
+    }
+
+    if (!pinchZoomSetup) {
+      setupPinchZoom();
+      pinchZoomSetup = true;
+    }
+  } finally {
+    isInitializing = false;
+  }
+}
+
+async function flipCamera() {
+  // torch消す
+  if (torchOn) await setTorch(false);
+
+  facingMode = facingMode === 'environment' ? 'user' : 'environment';
+  const fb = document.getElementById('flip-btn');
+  fb.style.transform = 'rotate(180deg)';
+  setTimeout(() => fb.style.transform = '', 350);
+  await initCamera();
+}
+
+// ── TORCH (ライト) ────────────────────────────────────
+async function toggleTorch() {
+  torchOn = !torchOn;
+  await setTorch(torchOn);
+}
+
+async function setTorch(on) {
+  torchOn = on;
+  if (!torchTrack) {
+    torchOn = false;
+    showToast('カメラ未起動');
+    updateTorchUI();
+    return;
+  }
+  const caps = torchTrack.getCapabilities?.() || {};
+  if (!caps.torch) {
+    showToast('このカメラはライト非対応');
+    torchOn = false;
+    updateTorchUI();
+    return;
+  }
+  try {
+    await torchTrack.applyConstraints({ advanced: [{ torch: on }] });
+    showToast(on ? 'TORCH ON' : 'TORCH OFF');
+  } catch(e) {
+    torchOn = false;
+    showToast('ライト制御エラー');
+  }
+  updateTorchUI();
+}
+
+function updateTorchUI() {
+  if (torchOn) {
+    torchBtn.classList.add('on');
+    torchInd.classList.add('show');
+  } else {
+    torchBtn.classList.remove('on');
+    torchInd.classList.remove('show');
+  }
+}
+
+// ── FLASH (撮影時フラッシュ) ──────────────────────────
+function cycleFlash() {
+  // off → on → auto → off
+  const order = ['off', 'on', 'auto'];
+  const idx = order.indexOf(flashMode);
+  flashMode = order[(idx + 1) % order.length];
+  updateFlashUI();
+  showToast(`FLASH ${flashMode.toUpperCase()}`);
+}
+
+function updateFlashUI() {
+  flashBtn.classList.remove('on', 'auto');
+  flashModeInd.classList.remove('show');
+  const label = flashBtn.querySelector('.flash-label');
+
+  if (flashMode === 'on') {
+    flashBtn.classList.add('on');
+    flashModeInd.classList.add('show');
+    flashModeInd.textContent = 'FLASH ON';
+    if (label) label.textContent = 'ON';
+  } else if (flashMode === 'auto') {
+    flashBtn.classList.add('auto');
+    flashModeInd.classList.add('show');
+    flashModeInd.textContent = 'FLASH AUTO';
+    if (label) label.textContent = 'AUTO';
+  } else {
+    if (label) label.textContent = 'OFF';
+  }
+}
+
+// 撮影前にトーチを瞬間的に光らせる（フラッシュ代わり）
+async function fireFlashIfNeeded() {
+  let shouldFire = false;
+  if (flashMode === 'on') {
+    shouldFire = true;
+  } else if (flashMode === 'auto') {
+    // 簡易：暗いかどうかをvideoの平均輝度で判断
+    shouldFire = isDarkScene();
+  }
+  if (!shouldFire) return false;
+
+  // ハードウェアトーチが使える場合は瞬間点灯
+  const caps = torchTrack?.getCapabilities?.() || {};
+  if (torchTrack && caps.torch && !torchOn) {
+    try {
+      await torchTrack.applyConstraints({ advanced: [{ torch: true }] });
+      // 露出待ち
+      await new Promise(r => setTimeout(r, 250));
+      return true;
+    } catch(e) {}
+  }
+  return false;
+}
+
+async function endFlashIfFired(fired) {
+  if (!fired) return;
+  if (torchOn) return; // ユーザーが常時ONにしていたら消さない
+  try {
+    await torchTrack?.applyConstraints({ advanced: [{ torch: false }] });
+  } catch(e) {}
+}
+
+function isDarkScene() {
+  try {
+    const c = document.createElement('canvas');
+    c.width = 32; c.height = 32;
+    const cx = c.getContext('2d');
+    cx.drawImage(video, 0, 0, 32, 32);
+    const data = cx.getImageData(0, 0, 32, 32).data;
+    let sum = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      sum += (data[i] + data[i+1] + data[i+2]) / 3;
+    }
+    const avg = sum / (data.length / 4);
+    return avg < 70;
+  } catch(e) { return false; }
+}
+
+// ── MODE ──────────────────────────────────────────────
+function setMode(mode, btn) {
+  if (mediaRecorder && mediaRecorder.state === 'recording') stopVideo();
+  currentMode = mode;
+  modeInfo.textContent = mode === 'photo' ? 'PHOTO' : 'VIDEO';
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  shutterBtn.classList.remove('recording');
+  recInd.classList.remove('show');
+}
+
+// ── SHUTTER ───────────────────────────────────────────
+function handleShutter() {
+  if (currentMode === 'photo') takePhoto();
+  else toggleVideo();
+}
+
+// ── PHOTO ─────────────────────────────────────────────
+async function takePhoto() {
+  // フラッシュ点灯（必要なら）
+  const fired = await fireFlashIfNeeded();
+
+  flash.classList.add('active');
+  setTimeout(() => flash.classList.remove('active'), 100);
+
+  const canvas = document.createElement('canvas');
+  canvas.width  = video.videoWidth  || 1920;
+  canvas.height = video.videoHeight || 1080;
+  const ctx = canvas.getContext('2d');
+  if (facingMode === 'user') {
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+  }
+  ctx.drawImage(video, 0, 0);
+
+  // フラッシュ終了
+  await endFlashIfFired(fired);
+
+  const filename = `muoncam_${ts()}.jpg`;
+
+  // Blob形式で取得（即時保存に最適）
+  canvas.toBlob(async (blob) => {
+    if (!blob) return;
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+    lastCaptureSrc  = dataUrl;
+    lastCaptureType = 'image';
+    showPreview(dataUrl, 'image');
+
+    // 即時保存処理（カメラに影響しないよう完全分離）
+    await saveBlobInstant(blob, filename);
+    showToast('PHOTO SAVED');
+  }, 'image/jpeg', 0.95);
+}
+
+// ── 即時保存（カメラ停止しないダウンロード）────────────
+async function saveBlobInstant(blob, filename) {
+  // 方法1: File System Access API（対応ブラウザでは保存先選択せず即保存可能）
+  // ※ showSaveFilePickerはダイアログ出すため使わず、代わりに直接DLで瞬時保存
+
+  // 方法2: iframe経由でダウンロードを発行
+  // → メインウィンドウのvideo要素やgetUserMediaストリームに影響を与えない
+  // → ユーザーがキャンセルしてもカメラがフリーズしない
+  try {
+    const url = URL.createObjectURL(blob);
+
+    // 隠しiframe内でダウンロードリンクを発火
+    let dlFrame = document.getElementById('dl-frame');
+    if (!dlFrame) {
+      dlFrame = document.createElement('iframe');
+      dlFrame.id = 'dl-frame';
+      dlFrame.style.cssText = 'position:absolute;width:0;height:0;border:0;visibility:hidden;';
+      document.body.appendChild(dlFrame);
+    }
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    // iframe内にリンクを配置することで、ダウンロードのキャンセルが
+    // メインwindowに伝播せず、video/MediaStreamに影響しない
+    try {
+      dlFrame.contentDocument.body.appendChild(a);
+    } catch(e) {
+      document.body.appendChild(a);
+    }
+    a.click();
+
+    // クリーンアップ（カメラに影響しないよう遅延実行）
+    setTimeout(() => {
+      try { a.remove(); } catch(e) {}
+      URL.revokeObjectURL(url);
+      // ダウンロード後にvideoが止まっていないか確認・復旧
+      ensureVideoPlaying();
+    }, 1500);
+  } catch(e) {
+    // フォールバック：通常のa.click()
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { a.remove(); URL.revokeObjectURL(url); ensureVideoPlaying(); }, 1500);
+  }
+}
+
+// videoが再生されているか確認し、止まっていたら復旧（黒画面防止）
+function ensureVideoPlaying() {
+  if (!stream) return;
+  try {
+    const tracks = stream.getVideoTracks();
+    if (tracks.length === 0 || tracks[0].readyState === 'ended') {
+      // ストリームが死んでる → 再起動
+      initCamera();
+      return;
+    }
+    // videoが一時停止していたら再生
+    if (video.paused || video.readyState < 2) {
+      video.srcObject = stream;
+      video.play().catch(() => {
+        // 再生できない場合は完全再起動
+        setTimeout(() => initCamera(), 100);
+      });
+    }
+  } catch(e) {
+    initCamera();
+  }
+}
+
+// ── VIDEO ─────────────────────────────────────────────
+function toggleVideo() {
+  if (!mediaRecorder || mediaRecorder.state === 'inactive') startVideo();
+  else stopVideo();
+}
+
+async function startVideo() {
+  recordedChunks = [];
+
+  // 動画モードでフラッシュONなら録画中ずっとトーチ点灯
+  if (flashMode === 'on' || (flashMode === 'auto' && isDarkScene())) {
+    const caps = torchTrack?.getCapabilities?.() || {};
+    if (torchTrack && caps.torch && !torchOn) {
+      try { await torchTrack.applyConstraints({ advanced: [{ torch: true }] }); } catch(e) {}
+    }
+  }
+
+  const types = [
+    'video/mp4;codecs=avc1,mp4a',
+    'video/mp4',
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm'
+  ];
+  let mimeType = '';
+  for (const t of types) {
+    if (MediaRecorder.isTypeSupported(t)) { mimeType = t; break; }
+  }
+  mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+  mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+  mediaRecorder.onstop = finishVideo;
+  mediaRecorder.start(100);
+
+  shutterBtn.classList.add('recording');
+  recInd.classList.add('show');
+  recSecs = 0; updateRecTime();
+  recTimer = setInterval(() => { recSecs++; updateRecTime(); }, 1000);
+}
+
+async function stopVideo() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+  clearInterval(recTimer);
+  shutterBtn.classList.remove('recording');
+  recInd.classList.remove('show');
+
+  // 動画用に点灯したトーチを消す（ユーザーが常時ONにしてないとき）
+  if (!torchOn && torchTrack) {
+    try { await torchTrack.applyConstraints({ advanced: [{ torch: false }] }); } catch(e) {}
+  }
+}
+
+function updateRecTime() {
+  const m = String(Math.floor(recSecs / 60)).padStart(2, '0');
+  const s = String(recSecs % 60).padStart(2, '0');
+  recTimeEl.textContent = `${m}:${s}`;
+}
+
+async function finishVideo() {
+  const actualType = recordedChunks[0]?.type || 'video/webm';
+  const blob = new Blob(recordedChunks, { type: actualType });
+  const url  = URL.createObjectURL(blob);
+  lastCaptureSrc  = url;
+  lastCaptureType = 'video';
+  showPreview(url, 'video');
+  // 即時保存（キャンセルしてもカメラに影響しない）
+  await saveBlobInstant(blob, `muoncam_${ts()}.mp4`);
+  showToast('VIDEO SAVED');
+}
+
+// ── DOWNLOAD HELPERS ──────────────────────────────────
+function triggerDownload(href, filename) {
+  const a = document.createElement('a');
+  a.href = href; a.download = filename; a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => document.body.removeChild(a), 500);
+}
+function triggerDownloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  triggerDownload(url, filename);
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+function ts() {
+  return new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+}
+
+// ── TOAST ─────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+// ── PREVIEW ───────────────────────────────────────────
+function showPreview(src, type) {
+  previewThumb.innerHTML = '';
+  previewThumb.classList.add('show');
+  if (type === 'image') {
+    const img = document.createElement('img');
+    img.src = src;
+    previewThumb.appendChild(img);
+  } else {
+    const vid = document.createElement('video');
+    vid.src = src; vid.muted = true; vid.loop = true;
+    vid.autoplay = true; vid.playsInline = true;
+    previewThumb.appendChild(vid);
+  }
+  previewThumb.onclick = () => openGallery(src, type);
+}
+
+function openGallery(src, type) {
+  const inner = document.getElementById('gallery-inner');
+  inner.innerHTML = '';
+  if (type === 'image') {
+    const img = document.createElement('img'); img.src = src; inner.appendChild(img);
+    document.getElementById('dl-btn').onclick = async () => {
+      // dataURLをBlobに変換して即時保存（キャンセルしてもカメラに影響しない）
+      try {
+        const res = await fetch(src);
+        const blob = await res.blob();
+        await saveBlobInstant(blob, `muoncam_${ts()}.jpg`);
+        showToast('SAVED');
+      } catch(e) {}
+    };
+  } else {
+    const vid = document.createElement('video');
+    vid.src = src; vid.controls = true; inner.appendChild(vid);
+    document.getElementById('dl-btn').onclick = async () => {
+      try {
+        const res = await fetch(src);
+        const blob = await res.blob();
+        await saveBlobInstant(blob, `muoncam_${ts()}.mp4`);
+        showToast('SAVED');
+      } catch(e) {}
+    };
+  }
+  document.getElementById('gallery-modal').classList.add('show');
+}
+
+function closeGallery() {
+  document.getElementById('gallery-modal').classList.remove('show');
+  const vid = document.querySelector('#gallery-inner video');
+  if (vid) vid.pause();
+}
+
+// ── PINCH ZOOM ────────────────────────────────────────
+function setupPinchZoom() {
+  const vf = document.getElementById('viewfinder-wrap');
+  let zt;
+  vf.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) initialPinchDist = pd(e);
+  }, { passive: true });
+  vf.addEventListener('touchmove', e => {
+    if (e.touches.length === 2 && initialPinchDist)
+      applyZoom(Math.min(Math.max(currentZoom * pd(e) / initialPinchDist, 1), 5));
+  }, { passive: true });
+  vf.addEventListener('touchend', e => {
+    if (e.touches.length < 2) {
+      currentZoom = parseFloat(video.style.transform?.match(/scale\((.+?)\)/)?.[1] || 1);
+      initialPinchDist = null;
+    }
+  });
+  vf.addEventListener('wheel', e => {
+    e.preventDefault();
+    currentZoom = Math.min(Math.max(currentZoom + (e.deltaY > 0 ? -0.1 : 0.1), 1), 5);
+    applyZoom(currentZoom);
+    clearTimeout(zt);
+    zt = setTimeout(() => zoomInfo.classList.remove('show'), 1500);
+  }, { passive: false });
+}
+function pd(e) {
+  const dx = e.touches[0].clientX - e.touches[1].clientX;
+  const dy = e.touches[0].clientY - e.touches[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+function applyZoom(z) {
+  video.style.transform = `scale(${z.toFixed(2)})`;
+  video.style.transformOrigin = 'center';
+  zoomInfo.textContent = `${z.toFixed(1)}×`;
+  zoomInfo.classList.add('show');
+}
+
+// ── INIT ──────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // 初回は許可画面を出すだけ。ボタンクリックでinitCamera()呼ぶ
+  // ただし2回目以降の訪問では自動的に起動できるようにフラグチェック
+  updateFlashUI();
+});
 </script>
 
-</body>
-</html>
+
+<deepl-input-controller translate="no"><template shadowrootmode="open"><link rel="stylesheet" href="chrome-extension://fancfknaplihpclbhbpclnmmjcjanbaf/build/content.css"><div dir="ltr" style="visibility: initial !important;"><div class="dl-input-translation-container svelte-95aucy"><div></div></div></div></template></deepl-input-controller></body></html>
