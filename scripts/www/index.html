@@ -1,88 +1,1078 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="stylesheet" href="./static/css/styles.css" />
-        <meta
-            http-equiv="Content-Security-Policy"
-            content="default-src * 'unsafe-inline' 'unsafe-eval'"
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Tauri App</title>
-        <script src="./static/js/main.js"></script>
-    </head>
-    <body>
-        <main class="container">
-            <h1>Welcome to TauriMan</h1>
+<!-- saved from url=(0062)https://5060-i8qtx185undi4teairrxn-ad490db5.sandbox.novita.ai/ -->
+<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-            <div class="row">
-                <a
-                    href="https://tauri.app"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <img
-                        src="./assets/tauri.svg"
-                        class="logo tauri"
-                        alt="Tauri logo"
-                    />
-                </a>
-                <a
-                    href="https://pakeplus.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <img
-                        src="https://hk.gh-proxy.org/https://github.com/Sjj1024/PakePlus/blob/main/app-icon.png"
-                        class="logo vanilla"
-                        alt="JavaScript logo"
-                    />
-                </a>
-            </div>
-            <p>Click to get data</p>
-            <form class="row" id="greet-form">
-                <input id="greet-input" placeholder="Enter a name..." />
-                <button type="submit" id="getdata">GET DATA</button>
-            </form>
-            <div class="functions">
-                <a href="./book.html" target="_self">跳转到book.html</a>
-                <a
-                    href="https://www.baidu.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    >跳到百度blank
-                </a>
-                <a
-                    href="https://www.baidu.com"
-                    target="_self"
-                    rel="noopener noreferrer"
-                >
-                    跳到百度self
-                </a>
-                <button onclick="sayHello()">点击我</button>
-                <button onclick="sayHello()">下载文件</button>
-                <button onclick="sayHello()">上传文件</button>
-                <button onclick="sayHello()">访问相机</button>
-                <button onclick="sayHello()">访问麦克风</button>
-                <button onclick="sayHello()">访问相册</button>
-                <button class="btn" onclick="openWechat()">打开微信</button>
-                <button class="btn" onclick="openWechatScan()">
-                    打开扫一扫
-                </button>
-                <button class="btn" onclick="openZhihu()">打开知乎</button>
-                <button onclick="sayHello()">打开抖音</button>
-                <button onclick="sayHello()">用浏览器打开</button>
-                <button>打开知乎</button>
-            </div>
-            <p id="greet-msg"></p>
-            <img src="./static/image/cursor.jpeg" alt="logo" />
-            <video
-                src="https://hk.gh-proxy.org/https://github.com/Sjj1024/PakePlus/blob/main/docs/static/videos/pakeplus.mp4"
-                autoplay
-                controls
-                style="width: 100%; height: 100%"
-            ></video>
-            <audio src="./static/music/yin.mp3" controls></audio>
-        </main>
-    </body>
-</html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>無音カメラ</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black:     #080c10;
+  --navy:      #0b1120;
+  --panel:     #0d1829;
+  --border:    #1a2d4a;
+  --blue:      #1d6dff;
+  --blue-lo:   rgba(29,109,255,0.12);
+  --blue-glow: rgba(29,109,255,0.35);
+  --cyan:      #38c8ff;
+  --white:     #f0f4ff;
+  --muted:     #3d5a80;
+  --rec:       #ff3c5a;
+  --torch-on:  #ffe566;
+  --flash-on:  #38c8ff;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--black);
+  color: var(--white);
+  font-family: 'Space Mono', monospace;
+  overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app { display: flex; flex-direction: column; height: 100dvh; position: relative; }
+
+/* ── TOPBAR ── */
+#topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--navy);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0; position: relative; z-index: 10;
+}
+#topbar::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue), transparent);
+  opacity: 0.6;
+}
+.brand {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700;
+  font-size: 20px; letter-spacing: 3px; color: var(--white); text-transform: uppercase;
+}
+.brand span { color: var(--blue); }
+
+.silent-badge {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 9px; letter-spacing: 2px; color: var(--cyan);
+  border: 1px solid rgba(56,200,255,0.3); padding: 3px 9px; border-radius: 2px;
+}
+.silent-badge::before {
+  content: ''; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--cyan); box-shadow: 0 0 6px var(--cyan);
+}
+#mode-info { font-size: 10px; letter-spacing: 2px; color: var(--muted); }
+
+/* ── VIEWFINDER ── */
+#viewfinder-wrap { flex: 1; position: relative; overflow: hidden; background: #000; }
+
+#video {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  /* 再生マークを完全に非表示 */
+  pointer-events: none;
+}
+/* ブラウザのデフォルト動画コントロールを全て消す（再生マーク含む） */
+#video::-webkit-media-controls { display: none !important; -webkit-appearance: none !important; }
+#video::-webkit-media-controls-enclosure { display: none !important; }
+#video::-webkit-media-controls-panel { display: none !important; }
+#video::-webkit-media-controls-play-button { display: none !important; -webkit-appearance: none !important; }
+#video::-webkit-media-controls-overlay-play-button { display: none !important; -webkit-appearance: none !important; opacity: 0 !important; }
+#video::-webkit-media-controls-start-playback-button { display: none !important; -webkit-appearance: none !important; opacity: 0 !important; }
+#video::-internal-media-controls-overlay-cast-button { display: none !important; }
+video::-webkit-media-controls-start-playback-button { display: none !important; -webkit-appearance: none !important; }
+video::-webkit-media-controls { display: none !important; }
+video::-webkit-media-controls-overlay-play-button { display: none !important; opacity: 0 !important; }
+/* iOS用の追加対策 */
+video {
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+}
+
+#viewfinder-wrap::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(8,12,16,0.55) 100%);
+  pointer-events: none; z-index: 1;
+}
+
+/* Grid */
+#grid-overlay {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0.15; z-index: 2;
+}
+#grid-overlay::before, #grid-overlay::after {
+  content: ''; position: absolute; background: var(--cyan);
+}
+#grid-overlay::before { width:1px; height:100%; left:33.33%; top:0; box-shadow: calc(33.33vw) 0 0 var(--cyan); }
+#grid-overlay::after  { height:1px; width:100%; top:33.33%; left:0; box-shadow: 0 calc(33.33%) 0 var(--cyan); }
+
+/* Brackets */
+.bracket {
+  position: absolute; width:22px; height:22px;
+  border-color: var(--blue); border-style: solid;
+  pointer-events: none; z-index: 3;
+}
+.bracket.tl { top:18px; left:18px; border-width:1.5px 0 0 1.5px; }
+.bracket.tr { top:18px; right:18px; border-width:1.5px 1.5px 0 0; }
+.bracket.bl { bottom:18px; left:18px; border-width:0 0 1.5px 1.5px; }
+.bracket.br { bottom:18px; right:18px; border-width:0 1.5px 1.5px 0; }
+
+.center-dot {
+  position: absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:6px; height:6px; border:1px solid rgba(56,200,255,0.5); border-radius:50%;
+  pointer-events:none; z-index:3;
+}
+
+/* Flash overlay */
+#flash {
+  position: absolute; inset:0; background:white; opacity:0;
+  pointer-events:none; z-index:20; transition:opacity 0.05s;
+}
+#flash.active { opacity:1; }
+
+/* Toast */
+#save-toast {
+  position: absolute; top:14px; left:50%; transform:translateX(-50%);
+  background: rgba(8,12,16,0.85); border:1px solid var(--blue);
+  color: var(--cyan); font-size:10px; letter-spacing:1.5px;
+  padding:5px 16px; border-radius:2px; z-index:10;
+  opacity:0; transition:opacity 0.3s; white-space:nowrap;
+  pointer-events:none; box-shadow:0 0 12px var(--blue-glow);
+}
+#save-toast.show { opacity:1; }
+
+/* REC indicator */
+#rec-indicator {
+  position: absolute; top:14px; right:14px;
+  display:none; align-items:center; gap:6px;
+  background:rgba(8,12,16,0.8); border:1px solid rgba(255,60,90,0.4);
+  padding:4px 10px; border-radius:2px; z-index:5;
+}
+#rec-indicator.show { display:flex; }
+#rec-dot {
+  width:7px; height:7px; border-radius:50%;
+  background:var(--rec); box-shadow:0 0 6px var(--rec);
+  animation:blink 1s infinite;
+}
+#rec-time { font-size:11px; color:var(--white); letter-spacing:1px; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+/* Torch indicator (viewfinder内) */
+#torch-indicator {
+  position: absolute; top:14px; left:14px;
+  display:none; align-items:center; gap:5px;
+  background:rgba(8,12,16,0.8); border:1px solid rgba(255,229,102,0.4);
+  padding:4px 10px; border-radius:2px; z-index:5;
+  font-size:9px; letter-spacing:1.5px; color:var(--torch-on);
+}
+#torch-indicator.show { display:flex; }
+#torch-indicator::before {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background:var(--torch-on); box-shadow:0 0 8px var(--torch-on);
+}
+
+/* Flash mode indicator */
+#flash-mode-indicator {
+  position: absolute; top:46px; left:14px;
+  display:none; align-items:center; gap:5px;
+  background:rgba(8,12,16,0.8); border:1px solid rgba(56,200,255,0.4);
+  padding:4px 10px; border-radius:2px; z-index:5;
+  font-size:9px; letter-spacing:1.5px; color:var(--flash-on);
+}
+#flash-mode-indicator.show { display:flex; }
+#flash-mode-indicator::before {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background:var(--flash-on); box-shadow:0 0 8px var(--flash-on);
+}
+
+/* Preview thumb */
+#preview-thumb {
+  position: absolute; bottom:18px; left:18px;
+  width:54px; height:54px; border-radius:4px;
+  border:1.5px solid var(--blue); overflow:hidden;
+  cursor:pointer; z-index:5; display:none;
+  box-shadow:0 0 12px var(--blue-glow); transition:transform 0.15s;
+}
+#preview-thumb:active { transform:scale(0.91); }
+#preview-thumb img, #preview-thumb video {
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+#preview-thumb.show { display:block; }
+
+/* Zoom info */
+#zoom-info {
+  position: absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  background:rgba(8,12,16,0.7); border:1px solid var(--border);
+  padding:4px 14px; border-radius:2px; font-size:12px; letter-spacing:1px;
+  color:var(--white); pointer-events:none; opacity:0; transition:opacity 0.3s; z-index:5;
+}
+#zoom-info.show { opacity:1; }
+
+/* ── BOTTOMBAR ── */
+#bottombar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px 30px;
+  background: var(--navy); border-top:1px solid var(--border);
+  flex-shrink:0; position:relative; gap: 6px;
+}
+#bottombar::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,var(--blue),transparent); opacity:0.5;
+}
+
+/* Left controls: flip + torch + flash */
+#left-controls {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+
+/* Icon buttons (flip, torch, flash) */
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--panel); border: 1px solid var(--border);
+  color: var(--muted); font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
+  flex-shrink: 0; position: relative;
+}
+.icon-btn:active { transform: scale(0.91); }
+
+#torch-btn { font-size: 18px; }
+#torch-btn.on {
+  border-color: var(--torch-on);
+  color: var(--torch-on);
+  box-shadow: 0 0 14px rgba(255,229,102,0.35);
+}
+
+/* Flash button */
+#flash-btn { font-size: 14px; font-weight: 700; }
+#flash-btn.on {
+  border-color: var(--flash-on);
+  color: var(--flash-on);
+  box-shadow: 0 0 14px rgba(56,200,255,0.35);
+}
+#flash-btn.auto {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+.flash-label {
+  position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%);
+  font-size: 7px; letter-spacing: 1px; color: var(--muted);
+}
+#flash-btn.on .flash-label { color: var(--flash-on); }
+#flash-btn.auto .flash-label { color: var(--cyan); }
+
+/* Shutter */
+#shutter {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--panel); border: 2px solid var(--blue);
+  box-shadow: 0 0 0 6px var(--blue-lo), 0 0 20px var(--blue-glow);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: transform 0.1s, box-shadow 0.2s, border-color 0.2s;
+  outline: none; flex-shrink: 0;
+}
+#shutter:active { transform: scale(0.91); }
+#shutter.recording {
+  border-color: var(--rec);
+  box-shadow: 0 0 0 6px rgba(255,60,90,0.12), 0 0 24px rgba(255,60,90,0.4);
+  animation: recPulse 1.5s ease-in-out infinite;
+}
+@keyframes recPulse {
+  0%,100% { box-shadow: 0 0 0 6px rgba(255,60,90,0.12), 0 0 24px rgba(255,60,90,0.3); }
+  50%      { box-shadow: 0 0 0 14px rgba(255,60,90,0.04), 0 0 36px rgba(255,60,90,0.5); }
+}
+#shutter-inner {
+  width:26px; height:26px; border-radius:50%; background:white;
+  transition: border-radius 0.2s, width 0.2s, height 0.2s, background 0.2s;
+}
+#shutter.recording #shutter-inner {
+  border-radius:4px; width:22px; height:22px; background:var(--rec);
+}
+
+/* Mode tabs */
+#mode-tabs { display:flex; flex-direction:column; gap:5px; }
+.mode-btn {
+  background:none; border:1px solid transparent; color:var(--muted);
+  font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px;
+  padding:5px 12px; border-radius:2px; cursor:pointer; transition:all 0.2s;
+  text-transform:uppercase;
+}
+.mode-btn.active {
+  color:var(--cyan); border-color:rgba(56,200,255,0.3);
+  background:rgba(56,200,255,0.06);
+}
+
+/* ── PERMISSION ── */
+#perm-screen {
+  position:absolute; inset:0; background:var(--black);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:20px; z-index:100; padding:48px; text-align:center;
+}
+.perm-logo {
+  width:64px; height:64px; border:1.5px solid var(--blue); border-radius:16px;
+  display:flex; align-items:center; justify-content:center; font-size:28px;
+  box-shadow:0 0 24px var(--blue-glow); background:var(--blue-lo); margin-bottom:4px;
+}
+#perm-screen h2 {
+  font-family:'Rajdhani',sans-serif; font-weight:700;
+  font-size:24px; letter-spacing:4px; color:var(--white); text-transform:uppercase;
+}
+#perm-screen p { font-size:11px; color:var(--muted); line-height:2; max-width:280px; }
+#perm-btn {
+  background:var(--blue); color:white; border:none; border-radius:2px;
+  padding:12px 32px; font-family:'Space Mono',monospace;
+  font-size:11px; letter-spacing:2px; cursor:pointer; text-transform:uppercase;
+  margin-top:8px; box-shadow:0 0 20px var(--blue-glow); transition:background 0.2s;
+}
+#perm-btn:active { background:#1558d6; }
+
+/* ── GALLERY MODAL ── */
+#gallery-modal {
+  position:fixed; inset:0; background:rgba(8,12,16,0.97); z-index:200;
+  display:none; flex-direction:column; align-items:center; justify-content:center; padding:24px;
+}
+#gallery-modal.show { display:flex; }
+#gallery-inner img, #gallery-inner video {
+  max-width:100%; max-height:70vh; border-radius:4px;
+  border:1px solid var(--border); object-fit:contain;
+}
+#gallery-controls { display:flex; gap:10px; margin-top:20px; }
+.gallery-btn {
+  background:var(--panel); border:1px solid var(--border); color:var(--muted);
+  padding:10px 20px; border-radius:2px; font-family:'Space Mono',monospace;
+  font-size:10px; letter-spacing:1.5px; cursor:pointer; text-transform:uppercase; transition:all 0.2s;
+}
+.gallery-btn.primary {
+  background:var(--blue); color:white; border-color:var(--blue);
+  box-shadow:0 0 14px var(--blue-glow);
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- PERMISSION -->
+  <div id="perm-screen" style="display: flex;">
+    <div class="perm-logo">📷</div>
+    <h2>Muon Cam</h2>
+    <p>カメラへのアクセスが拒否されました。
+ブラウザの設定から許可してください。</p>
+    <button id="perm-btn" onclick="initCamera()">起動する</button>
+  </div>
+
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div class="brand">MUON<span>CAM</span></div>
+    <div id="mode-info">PHOTO</div>
+    <div class="silent-badge">SILENT</div>
+  </div>
+
+  <!-- VIEWFINDER -->
+  <div id="viewfinder-wrap">
+    <video id="video" autoplay="" playsinline="" muted="" disablepictureinpicture="" disableremoteplayback="" webkit-playsinline="true" x-webkit-airplay="deny" controls="false"></video>
+    <div id="grid-overlay"></div>
+    <div class="bracket tl"></div>
+    <div class="bracket tr"></div>
+    <div class="bracket bl"></div>
+    <div class="bracket br"></div>
+    <div class="center-dot"></div>
+    <div id="flash"></div>
+    <div id="save-toast">SAVED</div>
+    <div id="torch-indicator">TORCH ON</div>
+    <div id="flash-mode-indicator">FLASH ON</div>
+    <div id="rec-indicator"><div id="rec-dot"></div><span id="rec-time">00:00</span></div>
+    <div id="preview-thumb"></div>
+    <div id="zoom-info">1.0×</div>
+  </div>
+
+  <!-- BOTTOMBAR -->
+  <div id="bottombar">
+    <!-- 左：カメラ反転 + トーチ + フラッシュ -->
+    <div id="left-controls">
+      <button class="icon-btn" id="flip-btn" onclick="flipCamera()" title="カメラ切替">⟳</button>
+      <button class="icon-btn" id="torch-btn" onclick="toggleTorch()" title="ライト点灯/消灯">🔦</button>
+      <button class="icon-btn" id="flash-btn" onclick="cycleFlash()" title="フラッシュ設定">⚡<span class="flash-label">OFF</span></button>
+    </div>
+
+    <!-- 中央：シャッター -->
+    <button id="shutter" onclick="handleShutter()">
+      <div id="shutter-inner"></div>
+    </button>
+
+    <!-- 右：モード -->
+    <div id="mode-tabs">
+      <button class="mode-btn active" onclick="setMode(&#39;photo&#39;,this)">PHOTO</button>
+      <button class="mode-btn" onclick="setMode(&#39;video&#39;,this)">VIDEO</button>
+    </div>
+  </div>
+
+  <!-- GALLERY -->
+  <div id="gallery-modal">
+    <div id="gallery-inner"></div>
+    <div id="gallery-controls">
+      <button class="gallery-btn" onclick="closeGallery()">CLOSE</button>
+      <button class="gallery-btn primary" id="dl-btn">SAVE AGAIN</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let stream         = null;
+let facingMode     = 'environment';
+let currentMode    = 'photo';
+let mediaRecorder  = null;
+let recordedChunks = [];
+let recTimer       = null;
+let recSecs        = 0;
+let currentZoom    = 1;
+let initialPinchDist = null;
+let lastCaptureSrc   = null;
+let lastCaptureType  = 'image';
+let torchOn          = false;
+let torchTrack       = null; // torch対応のvideoトラック
+let pinchZoomSetup   = false;
+let flashMode        = 'off'; // 'off' | 'on' | 'auto'
+let isInitializing   = false;
+
+const video        = document.getElementById('video');
+const flash        = document.getElementById('flash');
+const recInd       = document.getElementById('rec-indicator');
+const recTimeEl    = document.getElementById('rec-time');
+const toast        = document.getElementById('save-toast');
+const previewThumb = document.getElementById('preview-thumb');
+const shutterBtn   = document.getElementById('shutter');
+const zoomInfo     = document.getElementById('zoom-info');
+const modeInfo     = document.getElementById('mode-info');
+const torchBtn     = document.getElementById('torch-btn');
+const torchInd     = document.getElementById('torch-indicator');
+const flashBtn     = document.getElementById('flash-btn');
+const flashModeInd = document.getElementById('flash-mode-indicator');
+
+// ── ページ再表示時の黒画面バグ対策（強化版）──────────────────
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState === 'visible') {
+    await restoreCamera();
+  } else {
+    // 非表示時はトーチを消しておく（バッテリー対策）
+    if (torchOn) {
+      try { await torchTrack?.applyConstraints({ advanced: [{ torch: false }] }); } catch(e) {}
+    }
+  }
+});
+
+// ページ復帰時のフォーカスイベントでも復元
+window.addEventListener('focus', restoreCamera);
+window.addEventListener('pageshow', (e) => {
+  // bfcache から復帰した場合も含めて常に復元
+  restoreCamera();
+});
+
+// iOS Safariでのpauseバグ対策（強化）
+video.addEventListener('pause', () => {
+  if (document.visibilityState === 'visible' && stream) {
+    // 複数回リトライ（ダウンロードキャンセル後の確実な復旧）
+    let retry = 0;
+    const tryPlay = () => {
+      video.play().catch(() => {
+        if (retry++ < 3) setTimeout(tryPlay, 150);
+        else ensureVideoPlaying();
+      });
+    };
+    tryPlay();
+  }
+});
+
+// ダウンロード関連でvideoが止まった場合の追加対策
+video.addEventListener('suspend', () => {
+  if (document.visibilityState === 'visible' && stream) {
+    setTimeout(() => ensureVideoPlaying && ensureVideoPlaying(), 100);
+  }
+});
+video.addEventListener('stalled', () => {
+  if (document.visibilityState === 'visible' && stream) {
+    setTimeout(() => ensureVideoPlaying && ensureVideoPlaying(), 100);
+  }
+});
+
+// ウィンドウ全体のblur/focusでも復旧（保存ダイアログ閉じた時用）
+window.addEventListener('blur', () => {
+  // ダウンロードダイアログが開いた可能性 → 後で復旧する準備
+  setTimeout(() => {
+    if (document.visibilityState === 'visible' && stream && video.paused) {
+      video.play().catch(() => ensureVideoPlaying && ensureVideoPlaying());
+    }
+  }, 800);
+});
+
+// ストリームが切れたときの自動復旧
+video.addEventListener('emptied', () => {
+  if (document.visibilityState === 'visible' && !isInitializing) {
+    restoreCamera();
+  }
+});
+
+// カメラ復元処理（黒画面バグの根本対策）
+async function restoreCamera() {
+  if (isInitializing) return;
+  if (document.getElementById('perm-screen').style.display !== 'none' &&
+      document.getElementById('perm-screen').style.display !== '') {
+    // 初回起動前ならスキップ
+    if (!stream) return;
+  }
+
+  // ストリームが無効化されているかチェック
+  let needsReinit = false;
+  if (!stream) {
+    needsReinit = true;
+  } else {
+    const tracks = stream.getVideoTracks();
+    if (tracks.length === 0) {
+      needsReinit = true;
+    } else {
+      const t = tracks[0];
+      if (t.readyState === 'ended' || !t.enabled || t.muted) {
+        needsReinit = true;
+      }
+    }
+  }
+
+  if (needsReinit) {
+    // 完全に再起動
+    await initCamera();
+  } else {
+    // ストリームは生きているがvideoが止まっている可能性
+    try {
+      video.srcObject = null;
+      // 次のフレームで再アタッチ
+      await new Promise(r => requestAnimationFrame(r));
+      video.srcObject = stream;
+      await video.play();
+    } catch(e) {
+      await initCamera();
+    }
+  }
+}
+
+// ── CAMERA ────────────────────────────────────────────
+async function initCamera() {
+  if (isInitializing) return;
+  isInitializing = true;
+
+  try {
+    document.getElementById('perm-screen').style.display = 'none';
+
+    // 既存ストリームを完全に解放
+    if (stream) {
+      stream.getTracks().forEach(t => {
+        try { t.stop(); } catch(e) {}
+      });
+      stream = null;
+    }
+    video.srcObject = null;
+
+    torchOn = false;
+    torchTrack = null;
+    updateTorchUI();
+
+    const constraints = {
+      video: {
+        facingMode,
+        width:  { ideal: 1920 },
+        height: { ideal: 1080 }
+      },
+      audio: true
+    };
+
+    try {
+      stream = await navigator.mediaDevices.getUserMedia(constraints);
+    } catch(e) {
+      // マイク拒否 → 映像のみ
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: constraints.video, audio: false
+        });
+      } catch(e2) {
+        const ps = document.getElementById('perm-screen');
+        ps.style.display = 'flex';
+        ps.querySelector('p').textContent =
+          'カメラへのアクセスが拒否されました。\nブラウザの設定から許可してください。';
+        return;
+      }
+    }
+
+    // torchに使うvideoトラックを保存
+    torchTrack = stream.getVideoTracks()[0] || null;
+
+    video.srcObject = stream;
+    // autoplayが効かない場合の保険（複数回試行）
+    let played = false;
+    for (let i = 0; i < 3 && !played; i++) {
+      try {
+        await video.play();
+        played = true;
+      } catch(e) {
+        await new Promise(r => setTimeout(r, 100));
+      }
+    }
+
+    if (!pinchZoomSetup) {
+      setupPinchZoom();
+      pinchZoomSetup = true;
+    }
+  } finally {
+    isInitializing = false;
+  }
+}
+
+async function flipCamera() {
+  // torch消す
+  if (torchOn) await setTorch(false);
+
+  facingMode = facingMode === 'environment' ? 'user' : 'environment';
+  const fb = document.getElementById('flip-btn');
+  fb.style.transform = 'rotate(180deg)';
+  setTimeout(() => fb.style.transform = '', 350);
+  await initCamera();
+}
+
+// ── TORCH (ライト) ────────────────────────────────────
+async function toggleTorch() {
+  torchOn = !torchOn;
+  await setTorch(torchOn);
+}
+
+async function setTorch(on) {
+  torchOn = on;
+  if (!torchTrack) {
+    torchOn = false;
+    showToast('カメラ未起動');
+    updateTorchUI();
+    return;
+  }
+  const caps = torchTrack.getCapabilities?.() || {};
+  if (!caps.torch) {
+    showToast('このカメラはライト非対応');
+    torchOn = false;
+    updateTorchUI();
+    return;
+  }
+  try {
+    await torchTrack.applyConstraints({ advanced: [{ torch: on }] });
+    showToast(on ? 'TORCH ON' : 'TORCH OFF');
+  } catch(e) {
+    torchOn = false;
+    showToast('ライト制御エラー');
+  }
+  updateTorchUI();
+}
+
+function updateTorchUI() {
+  if (torchOn) {
+    torchBtn.classList.add('on');
+    torchInd.classList.add('show');
+  } else {
+    torchBtn.classList.remove('on');
+    torchInd.classList.remove('show');
+  }
+}
+
+// ── FLASH (撮影時フラッシュ) ──────────────────────────
+function cycleFlash() {
+  // off → on → auto → off
+  const order = ['off', 'on', 'auto'];
+  const idx = order.indexOf(flashMode);
+  flashMode = order[(idx + 1) % order.length];
+  updateFlashUI();
+  showToast(`FLASH ${flashMode.toUpperCase()}`);
+}
+
+function updateFlashUI() {
+  flashBtn.classList.remove('on', 'auto');
+  flashModeInd.classList.remove('show');
+  const label = flashBtn.querySelector('.flash-label');
+
+  if (flashMode === 'on') {
+    flashBtn.classList.add('on');
+    flashModeInd.classList.add('show');
+    flashModeInd.textContent = 'FLASH ON';
+    if (label) label.textContent = 'ON';
+  } else if (flashMode === 'auto') {
+    flashBtn.classList.add('auto');
+    flashModeInd.classList.add('show');
+    flashModeInd.textContent = 'FLASH AUTO';
+    if (label) label.textContent = 'AUTO';
+  } else {
+    if (label) label.textContent = 'OFF';
+  }
+}
+
+// 撮影前にトーチを瞬間的に光らせる（フラッシュ代わり）
+async function fireFlashIfNeeded() {
+  let shouldFire = false;
+  if (flashMode === 'on') {
+    shouldFire = true;
+  } else if (flashMode === 'auto') {
+    // 簡易：暗いかどうかをvideoの平均輝度で判断
+    shouldFire = isDarkScene();
+  }
+  if (!shouldFire) return false;
+
+  // ハードウェアトーチが使える場合は瞬間点灯
+  const caps = torchTrack?.getCapabilities?.() || {};
+  if (torchTrack && caps.torch && !torchOn) {
+    try {
+      await torchTrack.applyConstraints({ advanced: [{ torch: true }] });
+      // 露出待ち
+      await new Promise(r => setTimeout(r, 250));
+      return true;
+    } catch(e) {}
+  }
+  return false;
+}
+
+async function endFlashIfFired(fired) {
+  if (!fired) return;
+  if (torchOn) return; // ユーザーが常時ONにしていたら消さない
+  try {
+    await torchTrack?.applyConstraints({ advanced: [{ torch: false }] });
+  } catch(e) {}
+}
+
+function isDarkScene() {
+  try {
+    const c = document.createElement('canvas');
+    c.width = 32; c.height = 32;
+    const cx = c.getContext('2d');
+    cx.drawImage(video, 0, 0, 32, 32);
+    const data = cx.getImageData(0, 0, 32, 32).data;
+    let sum = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      sum += (data[i] + data[i+1] + data[i+2]) / 3;
+    }
+    const avg = sum / (data.length / 4);
+    return avg < 70;
+  } catch(e) { return false; }
+}
+
+// ── MODE ──────────────────────────────────────────────
+function setMode(mode, btn) {
+  if (mediaRecorder && mediaRecorder.state === 'recording') stopVideo();
+  currentMode = mode;
+  modeInfo.textContent = mode === 'photo' ? 'PHOTO' : 'VIDEO';
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  shutterBtn.classList.remove('recording');
+  recInd.classList.remove('show');
+}
+
+// ── SHUTTER ───────────────────────────────────────────
+function handleShutter() {
+  if (currentMode === 'photo') takePhoto();
+  else toggleVideo();
+}
+
+// ── PHOTO ─────────────────────────────────────────────
+async function takePhoto() {
+  // フラッシュ点灯（必要なら）
+  const fired = await fireFlashIfNeeded();
+
+  flash.classList.add('active');
+  setTimeout(() => flash.classList.remove('active'), 100);
+
+  const canvas = document.createElement('canvas');
+  canvas.width  = video.videoWidth  || 1920;
+  canvas.height = video.videoHeight || 1080;
+  const ctx = canvas.getContext('2d');
+  if (facingMode === 'user') {
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+  }
+  ctx.drawImage(video, 0, 0);
+
+  // フラッシュ終了
+  await endFlashIfFired(fired);
+
+  const filename = `muoncam_${ts()}.jpg`;
+
+  // Blob形式で取得（即時保存に最適）
+  canvas.toBlob(async (blob) => {
+    if (!blob) return;
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+    lastCaptureSrc  = dataUrl;
+    lastCaptureType = 'image';
+    showPreview(dataUrl, 'image');
+
+    // 即時保存処理（カメラに影響しないよう完全分離）
+    await saveBlobInstant(blob, filename);
+    showToast('PHOTO SAVED');
+  }, 'image/jpeg', 0.95);
+}
+
+// ── 即時保存（カメラ停止しないダウンロード）────────────
+async function saveBlobInstant(blob, filename) {
+  // 方法1: File System Access API（対応ブラウザでは保存先選択せず即保存可能）
+  // ※ showSaveFilePickerはダイアログ出すため使わず、代わりに直接DLで瞬時保存
+
+  // 方法2: iframe経由でダウンロードを発行
+  // → メインウィンドウのvideo要素やgetUserMediaストリームに影響を与えない
+  // → ユーザーがキャンセルしてもカメラがフリーズしない
+  try {
+    const url = URL.createObjectURL(blob);
+
+    // 隠しiframe内でダウンロードリンクを発火
+    let dlFrame = document.getElementById('dl-frame');
+    if (!dlFrame) {
+      dlFrame = document.createElement('iframe');
+      dlFrame.id = 'dl-frame';
+      dlFrame.style.cssText = 'position:absolute;width:0;height:0;border:0;visibility:hidden;';
+      document.body.appendChild(dlFrame);
+    }
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    // iframe内にリンクを配置することで、ダウンロードのキャンセルが
+    // メインwindowに伝播せず、video/MediaStreamに影響しない
+    try {
+      dlFrame.contentDocument.body.appendChild(a);
+    } catch(e) {
+      document.body.appendChild(a);
+    }
+    a.click();
+
+    // クリーンアップ（カメラに影響しないよう遅延実行）
+    setTimeout(() => {
+      try { a.remove(); } catch(e) {}
+      URL.revokeObjectURL(url);
+      // ダウンロード後にvideoが止まっていないか確認・復旧
+      ensureVideoPlaying();
+    }, 1500);
+  } catch(e) {
+    // フォールバック：通常のa.click()
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { a.remove(); URL.revokeObjectURL(url); ensureVideoPlaying(); }, 1500);
+  }
+}
+
+// videoが再生されているか確認し、止まっていたら復旧（黒画面防止）
+function ensureVideoPlaying() {
+  if (!stream) return;
+  try {
+    const tracks = stream.getVideoTracks();
+    if (tracks.length === 0 || tracks[0].readyState === 'ended') {
+      // ストリームが死んでる → 再起動
+      initCamera();
+      return;
+    }
+    // videoが一時停止していたら再生
+    if (video.paused || video.readyState < 2) {
+      video.srcObject = stream;
+      video.play().catch(() => {
+        // 再生できない場合は完全再起動
+        setTimeout(() => initCamera(), 100);
+      });
+    }
+  } catch(e) {
+    initCamera();
+  }
+}
+
+// ── VIDEO ─────────────────────────────────────────────
+function toggleVideo() {
+  if (!mediaRecorder || mediaRecorder.state === 'inactive') startVideo();
+  else stopVideo();
+}
+
+async function startVideo() {
+  recordedChunks = [];
+
+  // 動画モードでフラッシュONなら録画中ずっとトーチ点灯
+  if (flashMode === 'on' || (flashMode === 'auto' && isDarkScene())) {
+    const caps = torchTrack?.getCapabilities?.() || {};
+    if (torchTrack && caps.torch && !torchOn) {
+      try { await torchTrack.applyConstraints({ advanced: [{ torch: true }] }); } catch(e) {}
+    }
+  }
+
+  const types = [
+    'video/mp4;codecs=avc1,mp4a',
+    'video/mp4',
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm'
+  ];
+  let mimeType = '';
+  for (const t of types) {
+    if (MediaRecorder.isTypeSupported(t)) { mimeType = t; break; }
+  }
+  mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+  mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+  mediaRecorder.onstop = finishVideo;
+  mediaRecorder.start(100);
+
+  shutterBtn.classList.add('recording');
+  recInd.classList.add('show');
+  recSecs = 0; updateRecTime();
+  recTimer = setInterval(() => { recSecs++; updateRecTime(); }, 1000);
+}
+
+async function stopVideo() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+  clearInterval(recTimer);
+  shutterBtn.classList.remove('recording');
+  recInd.classList.remove('show');
+
+  // 動画用に点灯したトーチを消す（ユーザーが常時ONにしてないとき）
+  if (!torchOn && torchTrack) {
+    try { await torchTrack.applyConstraints({ advanced: [{ torch: false }] }); } catch(e) {}
+  }
+}
+
+function updateRecTime() {
+  const m = String(Math.floor(recSecs / 60)).padStart(2, '0');
+  const s = String(recSecs % 60).padStart(2, '0');
+  recTimeEl.textContent = `${m}:${s}`;
+}
+
+async function finishVideo() {
+  const actualType = recordedChunks[0]?.type || 'video/webm';
+  const blob = new Blob(recordedChunks, { type: actualType });
+  const url  = URL.createObjectURL(blob);
+  lastCaptureSrc  = url;
+  lastCaptureType = 'video';
+  showPreview(url, 'video');
+  // 即時保存（キャンセルしてもカメラに影響しない）
+  await saveBlobInstant(blob, `muoncam_${ts()}.mp4`);
+  showToast('VIDEO SAVED');
+}
+
+// ── DOWNLOAD HELPERS ──────────────────────────────────
+function triggerDownload(href, filename) {
+  const a = document.createElement('a');
+  a.href = href; a.download = filename; a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => document.body.removeChild(a), 500);
+}
+function triggerDownloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  triggerDownload(url, filename);
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+function ts() {
+  return new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+}
+
+// ── TOAST ─────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+// ── PREVIEW ───────────────────────────────────────────
+function showPreview(src, type) {
+  previewThumb.innerHTML = '';
+  previewThumb.classList.add('show');
+  if (type === 'image') {
+    const img = document.createElement('img');
+    img.src = src;
+    previewThumb.appendChild(img);
+  } else {
+    const vid = document.createElement('video');
+    vid.src = src; vid.muted = true; vid.loop = true;
+    vid.autoplay = true; vid.playsInline = true;
+    previewThumb.appendChild(vid);
+  }
+  previewThumb.onclick = () => openGallery(src, type);
+}
+
+function openGallery(src, type) {
+  const inner = document.getElementById('gallery-inner');
+  inner.innerHTML = '';
+  if (type === 'image') {
+    const img = document.createElement('img'); img.src = src; inner.appendChild(img);
+    document.getElementById('dl-btn').onclick = async () => {
+      // dataURLをBlobに変換して即時保存（キャンセルしてもカメラに影響しない）
+      try {
+        const res = await fetch(src);
+        const blob = await res.blob();
+        await saveBlobInstant(blob, `muoncam_${ts()}.jpg`);
+        showToast('SAVED');
+      } catch(e) {}
+    };
+  } else {
+    const vid = document.createElement('video');
+    vid.src = src; vid.controls = true; inner.appendChild(vid);
+    document.getElementById('dl-btn').onclick = async () => {
+      try {
+        const res = await fetch(src);
+        const blob = await res.blob();
+        await saveBlobInstant(blob, `muoncam_${ts()}.mp4`);
+        showToast('SAVED');
+      } catch(e) {}
+    };
+  }
+  document.getElementById('gallery-modal').classList.add('show');
+}
+
+function closeGallery() {
+  document.getElementById('gallery-modal').classList.remove('show');
+  const vid = document.querySelector('#gallery-inner video');
+  if (vid) vid.pause();
+}
+
+// ── PINCH ZOOM ────────────────────────────────────────
+function setupPinchZoom() {
+  const vf = document.getElementById('viewfinder-wrap');
+  let zt;
+  vf.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) initialPinchDist = pd(e);
+  }, { passive: true });
+  vf.addEventListener('touchmove', e => {
+    if (e.touches.length === 2 && initialPinchDist)
+      applyZoom(Math.min(Math.max(currentZoom * pd(e) / initialPinchDist, 1), 5));
+  }, { passive: true });
+  vf.addEventListener('touchend', e => {
+    if (e.touches.length < 2) {
+      currentZoom = parseFloat(video.style.transform?.match(/scale\((.+?)\)/)?.[1] || 1);
+      initialPinchDist = null;
+    }
+  });
+  vf.addEventListener('wheel', e => {
+    e.preventDefault();
+    currentZoom = Math.min(Math.max(currentZoom + (e.deltaY > 0 ? -0.1 : 0.1), 1), 5);
+    applyZoom(currentZoom);
+    clearTimeout(zt);
+    zt = setTimeout(() => zoomInfo.classList.remove('show'), 1500);
+  }, { passive: false });
+}
+function pd(e) {
+  const dx = e.touches[0].clientX - e.touches[1].clientX;
+  const dy = e.touches[0].clientY - e.touches[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+function applyZoom(z) {
+  video.style.transform = `scale(${z.toFixed(2)})`;
+  video.style.transformOrigin = 'center';
+  zoomInfo.textContent = `${z.toFixed(1)}×`;
+  zoomInfo.classList.add('show');
+}
+
+// ── INIT ──────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // 初回は許可画面を出すだけ。ボタンクリックでinitCamera()呼ぶ
+  // ただし2回目以降の訪問では自動的に起動できるようにフラグチェック
+  updateFlashUI();
+});
+</script>
+
+
+<deepl-input-controller translate="no"><template shadowrootmode="open"><link rel="stylesheet" href="chrome-extension://fancfknaplihpclbhbpclnmmjcjanbaf/build/content.css"><div dir="ltr" style="visibility: initial !important;"><div class="dl-input-translation-container svelte-95aucy"><div></div></div></div></template></deepl-input-controller></body></html>
